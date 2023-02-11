@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    depends_on:
+      - postgres
+    restart: always
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@infinite-adventure-postgres:${POSTGRES_PORT}/${POSTGRES_DB_NAME}?schema=public"
+      NODE_ENV: "production"
+    networks:
+      - infinite_adventure_network
+    ports:
+      - 3000:3000
+
+  postgres:
+    networks:
+      - infinite_adventure_network
+
+networks:
+  infinite_adventure_network:
+    external: true

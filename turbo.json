@@ -9,16 +9,23 @@
   "pipeline": {
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "generate"
       ],
       "outputs": [
         "dist/**",
         "build/**"
       ]
     },
+    "generate": {
+      "cache": false
+    },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": [
+        "^build"
+      ]
     },
     "lint": {
       "cache": false

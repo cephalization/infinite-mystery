@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres
+    container_name: "infinite-adventure-postgres"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    restart: unless-stopped
+    volumes:
+      - ${DB_LOCATION}:/var/lib/postgresql/data

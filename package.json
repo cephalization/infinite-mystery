@@ -14,7 +14,16 @@
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "fix-deps": "manypkg fix",
-    "postinstall": "manypkg check"
+    "postinstall": "manypkg check",
+    "db-init": "prisma migrate dev --name init",
+    "# docker management commands": "",
+    "d-up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d",
+    "d-down": "docker-compose down --remove-orphans",
+    "d-build": "docker-compose down -f docker-compose.yml -f docker-compose.dev.yml build",
+    "deploy": "./build-containers.sh"
+  },
+  "prisma": {
+    "schema": "packages/database/prisma/schema.prisma"
   },
   "repository": {
     "type": "git",
