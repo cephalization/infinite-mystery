@@ -1,0 +1,31 @@
+{
+  "name": "infinite-adventure",
+  "version": "0.0.1",
+  "private": true,
+  "description": "AI generated text based adventure",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "fix-deps": "manypkg fix",
+    "postinstall": "manypkg check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cephalization/infinite-adventure.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@manypkg/cli": "0.20.0",
+    "prettier": "2.8.4",
+    "turbo": "1.7.4",
+    "typescript": "4.9.5"
+  },
+  "packageManager": "yarn@1.22.19"
+}
