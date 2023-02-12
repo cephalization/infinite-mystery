@@ -3,7 +3,7 @@ version: "3"
 services:
   postgres:
     image: postgres
-    container_name: "infinite-adventure-postgres"
+    container_name: "infinite-mystery-postgres"
     environment:
       POSTGRES_USER: ${POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

@@ -9,7 +9,7 @@ services:
       - postgres
     restart: always
     environment:
-      DATABASE_URL: "postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@infinite-adventure-postgres:${POSTGRES_PORT}/${POSTGRES_DB_NAME}?schema=public"
+      DATABASE_URL: "postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@infinite-mystery-postgres:${POSTGRES_PORT}/${POSTGRES_DB_NAME}?schema=public"
       NODE_ENV: "production"
     networks:
       - infinite_adventure_network

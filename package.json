@@ -1,5 +1,5 @@
 {
-  "name": "infinite-adventure",
+  "name": "infinite-mystery",
   "version": "0.0.1",
   "private": true,
   "description": "AI generated text based adventure",
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cephalization/infinite-adventure.git"
+    "url": "git+https://github.com/cephalization/infinite-mystery.git"
   },
   "license": "MIT",
   "dependencies": {
