@@ -22,7 +22,7 @@ export const meta: MetaFunction = () => ({
 
 export default function App() {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-base-100">
       <head>
         <Meta />
         <Links />

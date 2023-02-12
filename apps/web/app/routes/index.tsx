@@ -14,7 +14,7 @@ export default function Index() {
   return (
     <div className="flex w-full p-8 flex-col gap-4">
       <h1 className="text-4xl">Welcome to your Infinite Adventure</h1>
-      <p className="text-slate-800 text-2xl">{userCount} Users</p>
+      <p className="text-primary text-2xl">{userCount} Users</p>
     </div>
   );
 }
