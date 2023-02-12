@@ -1,6 +1,9 @@
-import { prisma } from "database";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { Route } from "~/components/layouts/Route";
+import { VerticalEdges } from "~/components/layouts/VerticalEdges";
+import { prisma } from "~/server/prisma.server";
+import { ActionInput } from "~/components/molecules/ActionInput";
 
 export const loader = async () => {
   return json({
@@ -12,9 +15,16 @@ export default function Index() {
   const { userCount } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex w-full p-8 flex-col gap-4">
-      <h1 className="text-4xl">Welcome to your Infinite Adventure</h1>
-      <p className="text-primary text-2xl">{userCount} Users</p>
-    </div>
+    <Route>
+      <VerticalEdges>
+        <section>
+          <h1 className="text-4xl">Infinite Mystery</h1>
+          <p className="text-primary text-2xl">{userCount} Users</p>
+        </section>
+        <section>
+          <ActionInput />
+        </section>
+      </VerticalEdges>
+    </Route>
   );
 }
