@@ -7,7 +7,7 @@ export const Screen = forwardRef<HTMLDivElement, ScreenProps>(
     return (
       <div
         ref={ref}
-        className="flex flex-col flex-grow basis-full w-full max-w-7xl p-4"
+        className="flex flex-col overflow-hidden flex-grow basis-full w-full max-w-7xl p-4 pt-10"
       >
         {children}
       </div>

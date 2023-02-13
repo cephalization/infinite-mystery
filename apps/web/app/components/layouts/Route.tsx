@@ -12,29 +12,31 @@ export const Route = forwardRef<HTMLDivElement, RouteProps>(
     const location = useLocation();
 
     return (
-      <Drawer
-        id="main-drawer"
-        items={[
-          {
-            label: (
-              <>
-                <MapIcon /> Explore
-              </>
-            ),
-            to: "/explore",
-          },
-          {
-            label: (
-              <>
-                <PlusCircleIcon /> Create
-              </>
-            ),
-            to: "/create",
-          },
-        ].map((i) => ({ ...i, active: location.pathname.startsWith(i.to) }))}
-      >
-        <Screen ref={ref}>{children}</Screen>
-      </Drawer>
+      <main className="p-1">
+        <Drawer
+          id="main-drawer"
+          items={[
+            {
+              label: (
+                <>
+                  <MapIcon /> Explore
+                </>
+              ),
+              to: "/explore",
+            },
+            {
+              label: (
+                <>
+                  <PlusCircleIcon /> Create
+                </>
+              ),
+              to: "/create",
+            },
+          ].map((i) => ({ ...i, active: location.pathname.startsWith(i.to) }))}
+        >
+          <Screen ref={ref}>{children}</Screen>
+        </Drawer>
+      </main>
     );
   }
 );
