@@ -4,5 +4,16 @@
 
 .preview {
   background-image: radial-gradient(hsla(var(--bc) / 0.2) 0.5px, hsla(var(--b2) / 1) 0.5px);
+}
+
+.preview {
+  color: hsla(var(--nc) / 0.4);
+}
+
+.preview_text {
+  border-color: hsla(var(--nc) / 0.4);
+}
+
+.preview_text::placeholder {
   color: hsla(var(--nc) / 0.4);
 }

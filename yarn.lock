@@ -7084,6 +7084,11 @@ scheduler@^0.23.0:
   dependencies:
     loose-envify "^1.1.0"
 
+seamless-scroll-polyfill@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/seamless-scroll-polyfill/-/seamless-scroll-polyfill-2.3.0.tgz#75a687ac1feb3e8527d6565851104e0148ee3a5f"
+  integrity sha512-8gIh4aBmzBSdCudKCKGbY40vdW7VeVkoU9c/B0NjuZk0SpmX7kriDgZBUCiy7bCnSIzOXNPiq4XiHPZM9maD4Q==
+
 sembear@^0.5.0:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/sembear/-/sembear-0.5.2.tgz#679da95f1cf1a39b7fcd54a1ae89cd5badedb7b3"

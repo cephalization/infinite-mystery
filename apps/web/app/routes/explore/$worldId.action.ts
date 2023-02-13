@@ -9,7 +9,13 @@ export const action = async ({ request }: ActionArgs) => {
     const rJson = await request.json();
     const { events, worldDescription, worldName } = z
       .object({
-        events: z.array(z.object({ type: z.string(), content: z.string() })),
+        events: z.array(
+          z.object({
+            type: z.string(),
+            content: z.string(),
+            id: z.coerce.number(),
+          })
+        ),
         worldDescription: z.string(),
         worldName: z.string(),
       })

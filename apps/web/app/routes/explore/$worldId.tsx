@@ -15,7 +15,6 @@ export const loader = async ({ params }: LoaderArgs) => {
     const worldId = z.coerce.number().parse(params.worldId);
     const world = mockWorlds.find((w) => w.id === worldId);
     invariant(world !== undefined);
-
     return json({
       world,
     });
@@ -45,7 +44,6 @@ const fetchEvents = async ({
       method: "post",
     });
     const json = await response.json();
-
     return json.events;
   } catch (e) {
     console.error(e);
@@ -54,6 +52,7 @@ const fetchEvents = async ({
 
 export default function ExploreWorldById() {
   const initialized = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<EventItem[]>([]);
   const { world } = useLoaderData<typeof loader>();
@@ -74,6 +73,7 @@ export default function ExploreWorldById() {
       setLoading(false);
       if (initialEvents) {
         setEvents(initialEvents);
+        inputRef.current?.focus();
       }
     };
     if (!initialized.current) {
@@ -111,10 +111,12 @@ export default function ExploreWorldById() {
                 } as EventItem,
               ];
               setEvents(newEvents);
-              const inputEl = e.currentTarget.elements.namedItem(
-                "action-input"
-              ) as HTMLInputElement;
-              inputEl.value = "";
+              if (inputRef.current) {
+                inputRef.current.value = "";
+                // HACK
+                // blur the input so that safari doesn't hijack scroll
+                inputRef.current.blur();
+              }
               try {
                 const nextEvents = await fetchEvents({
                   events: newEvents,
@@ -124,6 +126,7 @@ export default function ExploreWorldById() {
                 });
                 if (nextEvents) {
                   setEvents(nextEvents);
+                  inputRef.current?.focus();
                 }
               } catch (e) {
                 console.error(e);
@@ -133,7 +136,7 @@ export default function ExploreWorldById() {
             }
           }}
         >
-          <ActionInput loading={loading} disabled={loading} />
+          <ActionInput loading={loading} disabled={loading} ref={inputRef} />
         </form>
       </section>
     </VerticalEdges>
