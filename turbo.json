@@ -7,7 +7,7 @@
     ".env"
   ],
   "pipeline": {
-    "start": {
+    "start:prod": {
       "persistent": true
     },
     "build": {
