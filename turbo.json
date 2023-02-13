@@ -7,6 +7,9 @@
     ".env"
   ],
   "pipeline": {
+    "start": {
+      "persistent": true
+    },
     "build": {
       "dependsOn": [
         "^build",
