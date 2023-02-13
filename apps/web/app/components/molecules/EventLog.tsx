@@ -9,6 +9,7 @@ export type EventItem = {
 
 type EventLogProps = {
   events?: EventItem[];
+  loading?: boolean;
 };
 
 const PlayerEvent = ({ event }: { event: EventItem }) => {
@@ -25,7 +26,7 @@ const matchEvent = (evt: EventItem) => {
   return (_: { event: EventItem }) => null;
 };
 
-export const EventLog = ({ events = [] }: EventLogProps) => {
+export const EventLog = ({ events = [], loading }: EventLogProps) => {
   return (
     <Stippled
       className={clsx(
@@ -40,6 +41,11 @@ export const EventLog = ({ events = [] }: EventLogProps) => {
 
           return <Component key={evt.id} event={evt} />;
         })}
+        {loading && (
+          <li>
+            <progress className="progress progress-primary w-full"></progress>
+          </li>
+        )}
       </ul>
     </Stippled>
   );

@@ -1,4 +1,4 @@
-type Variables = Record<string, string>;
+type Variables = Record<string, string | string[]>;
 
 /**
  * Replace a string of lite-templated variables with actual variables
@@ -6,6 +6,10 @@ type Variables = Record<string, string>;
  * @example
  * // "My name is Tony"
  * replacer("My name is {name}", { name: "Tony" })
+ * // "My hobbies are
+ * // - games
+ * // - coding"
+ * replacer("My hobbies are\n[hobbies]", { hobbies: ["games", "coding"]})
  *
  * @param template - string upon which variables are injected
  * @param variables - variables to inject
@@ -17,10 +21,15 @@ export const replacer = (template: string, variables: Variables) => {
 
   let text = template;
   for (const key of keys) {
-    const accessor = `{${key}}`;
+    const value = variables[key];
+    const valueIsArray = Array.isArray(value);
+    const accessor = valueIsArray ? `[${key}]` : `{${key}}`;
 
     if (text.includes(accessor)) {
-      text = text.replaceAll(accessor, variables[key]);
+      const formattedValue = valueIsArray
+        ? value.map((v) => `- ${v}`).join("\n")
+        : value;
+      text = text.replaceAll(accessor, formattedValue);
     }
   }
 

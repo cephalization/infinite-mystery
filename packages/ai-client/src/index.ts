@@ -8,6 +8,8 @@ import {
 
 export { replacer } from "./replacer";
 
+import { createDungeonMaster } from "./agents";
+
 const defaultCompletionQuery: CreateCompletionRequest = {
   model: "text-davinci-003",
   temperature: 0.5,
@@ -28,7 +30,7 @@ const createHandlers = (client: OpenAIApi) => ({
     options: Partial<CreateCompletionRequest> = {}
   ) =>
     client.createCompletion({
-      prompt,
+      prompt: prompt.trim(),
       ...defaultCompletionQuery,
       ...options,
     }),
@@ -40,6 +42,12 @@ const createHandlers = (client: OpenAIApi) => ({
     }),
 });
 
+export type Handlers = ReturnType<typeof createHandlers>;
+
+const createAgents = (handlers: Handlers) => ({
+  dungeonMaster: createDungeonMaster(handlers),
+});
+
 export const createAiClient = () => {
   const configuration = new Configuration({
     apiKey: serverConfig.OPENAI_API_KEY,
@@ -48,9 +56,11 @@ export const createAiClient = () => {
   const openai = new OpenAIApi(configuration);
 
   const handlers = createHandlers(openai);
+  const agents = createAgents(handlers);
 
   return {
     handlers,
+    agents,
     client: openai,
   };
 };

@@ -1,6 +1,11 @@
 import { ArrowRightCircleIcon } from "../icons/ArrowRightCircleIcon";
 
-export const ActionInput = () => {
+type ActionInputProps = {
+  disabled?: boolean;
+  loading?: boolean;
+};
+
+export const ActionInput = ({ disabled, loading }: ActionInputProps) => {
   return (
     <div className="form-control w-full">
       <label className="label" htmlFor="action-input">
@@ -9,13 +14,13 @@ export const ActionInput = () => {
       <div className="input-group w-full">
         <input
           type="text"
-          placeholder="I walk over there…"
+          placeholder={loading ? "Please wait..." : "I walk to..."}
           className="input input-bordered w-full"
           name="action-input"
           id="action-input"
           autoComplete="off"
         />
-        <button className="btn btn-square">
+        <button className="btn btn-square" disabled={disabled}>
           <ArrowRightCircleIcon />
         </button>
       </div>

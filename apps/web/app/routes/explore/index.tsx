@@ -1,14 +1,13 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { Scroller } from "~/components/layouts/Scroller";
-import { VerticalEdges } from "~/components/layouts/VerticalEdges";
 import { CardList } from "~/components/molecules/CardList";
 import { WorldCard } from "~/components/molecules/WorldCard";
 import { worlds as mockWorlds } from "~/mocks/worlds";
 
 export type World = {
   name: string;
-  description?: string;
+  description: string;
   imageSrc?: string;
   id: number | string;
 };

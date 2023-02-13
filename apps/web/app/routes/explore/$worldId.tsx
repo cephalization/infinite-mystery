@@ -3,12 +3,12 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
 import { ActionInput } from "~/components/molecules/ActionInput";
+import type { EventItem } from "~/components/molecules/EventLog";
 import { EventLog } from "~/components/molecules/EventLog";
-import { useState } from "react";
-import { events } from "~/mocks/events";
 import { worlds as mockWorlds } from "~/mocks/worlds";
 import invariant from "tiny-invariant";
 import { z } from "zod";
+import { useEffect, useRef, useState } from "react";
 
 export const loader = async ({ params }: LoaderArgs) => {
   try {
@@ -24,9 +24,62 @@ export const loader = async ({ params }: LoaderArgs) => {
   }
 };
 
+const fetchEvents = async ({
+  events,
+  worldDescription,
+  worldName,
+  worldId,
+}: {
+  events: EventItem[];
+  worldName: string;
+  worldDescription: string;
+  worldId: number | string;
+}) => {
+  try {
+    const response = await fetch(`/explore/${worldId}/action`, {
+      body: JSON.stringify({
+        events,
+        worldName,
+        worldDescription,
+      }),
+      method: "post",
+    });
+    const json = await response.json();
+
+    return json.events;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 export default function ExploreWorldById() {
+  const initialized = useRef(false);
+  const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState<EventItem[]>([]);
   const { world } = useLoaderData<typeof loader>();
-  const [mockEvents, setMockEvents] = useState(events);
+
+  const worldId = world.id;
+  const worldName = world.name;
+  const worldDescription = world.description;
+  useEffect(() => {
+    const f = async () => {
+      initialized.current = true;
+      setLoading(true);
+      const initialEvents = await fetchEvents({
+        events: [],
+        worldDescription,
+        worldId,
+        worldName,
+      });
+      setLoading(false);
+      if (initialEvents) {
+        setEvents(initialEvents);
+      }
+    };
+    if (!initialized.current) {
+      f();
+    }
+  }, [worldDescription, worldId, worldName]);
 
   return (
     <VerticalEdges>
@@ -37,32 +90,50 @@ export default function ExploreWorldById() {
         <h3 className="text-neutral-content">{world.description}</h3>
       </section>
       <section>
-        <EventLog events={mockEvents} />
+        <EventLog events={events} loading={loading} />
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
+            if (loading) return;
 
             const form = new FormData(e.currentTarget);
 
             const input = form.get("action-input");
 
             if (input) {
-              setMockEvents((e) => [
-                ...e,
+              setLoading(true);
+              const newEvents = [
+                ...events,
                 {
                   content: input.toString(),
                   type: "player",
-                  id: e.length + 1,
-                },
-              ]);
+                  id: events.length + 1,
+                } as EventItem,
+              ];
+              setEvents(newEvents);
               const inputEl = e.currentTarget.elements.namedItem(
                 "action-input"
               ) as HTMLInputElement;
               inputEl.value = "";
+              try {
+                const nextEvents = await fetchEvents({
+                  events: newEvents,
+                  worldId,
+                  worldName,
+                  worldDescription,
+                });
+                if (nextEvents) {
+                  setEvents(nextEvents);
+                }
+              } catch (e) {
+                console.error(e);
+              } finally {
+                setLoading(false);
+              }
             }
           }}
         >
-          <ActionInput />
+          <ActionInput loading={loading} disabled={loading} />
         </form>
       </section>
     </VerticalEdges>
