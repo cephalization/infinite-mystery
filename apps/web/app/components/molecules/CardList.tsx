@@ -8,7 +8,7 @@ export const CardList = ({ children, className }: CardListProps) => {
   return (
     <div
       className={clsx(
-        "w-full flex flex-wrap justify-center gap-4 gap-y-8",
+        "w-full flex justify-around flex-wrap gap-4 gap-y-8",
         className
       )}
     >

@@ -4,61 +4,43 @@ export const worlds: World[] = [
   {
     name: "Noir City",
     description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
+      "Your typical gritty, crime laden, perpetually nightfallen, city",
+    id: 150,
+    imageSrc: "/images/undefined-city-1.jpeg",
   },
   {
-    name: "Noir City",
+    name: "Lunar Bay",
     description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
+      "A beachy city with a bright, moonlit skyline and golden sand beaches",
+    id: 619,
+    imageSrc: "/images/undefined-city-1.jpeg",
   },
   {
-    name: "Noir City",
+    name: "Sunshine Town",
     description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
+      "A city of many colors, always sunny, and full of vibrant life",
+    id: 927,
+    imageSrc: "/images/undefined-city-2.jpeg",
   },
   {
-    name: "Noir City",
+    name: "Snowy Grove",
     description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
+      "The perfect winter wonderland, with white snow-capped trees and icy crystal streams",
+    id: 123,
+    imageSrc: "/images/undefined-city-1.jpeg",
   },
   {
-    name: "Noir City",
+    name: "Skyline City",
     description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
+      "A modern metropolis, with tall towering skyscrapers, busy streets, and buzzing nightlife",
+    id: 867,
+    imageSrc: "/images/undefined-city-2.jpeg",
   },
   {
-    name: "Noir City",
+    name: "Tropical Paradise",
     description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
+      "A lush, tropical paradise with vibrant colors, exotic wildlife, and endless sunshine",
+    id: 541,
+    imageSrc: "/images/undefined-city-1.jpeg",
   },
-  {
-    name: "Noir City",
-    description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
-  },
-  {
-    name: "Noir City",
-    description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
-  },
-  {
-    name: "Noir City",
-    description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
-  },
-  {
-    name: "Noir City",
-    description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
-  },
-  {
-    name: "Noir City",
-    description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
-  },
-  {
-    name: "Noir City",
-    description:
-      "Gritty noir mystery set in your typical crime laden, perpetually nightfallen, city",
-  },
-].map((w, i) => ({ ...w, id: i }));
+];

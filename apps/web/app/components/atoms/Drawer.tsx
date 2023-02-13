@@ -28,16 +28,13 @@ export const Drawer = ({ id, children, items = [] }: DrawerProps) => {
       </div>
       <div className="drawer-side">
         <label htmlFor={id} className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-300 border-r border-base-100 text-neutral-content">
+        <ul className="menu p-4 w-80 bg-base-300 border-r border-base-100">
+          <li className="text-primary text-2xl p-4">Infinite Mystery</li>
           {items.map((item) => (
-            <li
-              key={item.to}
-              className={clsx(
-                "text-lg",
-                item.active && "underline underline-offset-2"
-              )}
-            >
-              <Link to={item.to}>{item.label}</Link>
+            <li key={item.to}>
+              <Link className={clsx(item.active && "btn-active")} to={item.to}>
+                {item.label}
+              </Link>
             </li>
           ))}
         </ul>

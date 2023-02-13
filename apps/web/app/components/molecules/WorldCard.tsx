@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 
-const DEFAULT_WORLD_IMG = "/images/undefined-city.jpeg";
+const DEFAULT_WORLD_IMG = "/images/undefined-city-1.jpeg";
 
 type WorldCardProps = {
   name: string;
