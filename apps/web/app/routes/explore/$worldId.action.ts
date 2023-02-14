@@ -20,11 +20,39 @@ export const action = async ({ request }: ActionArgs) => {
         worldName: z.string(),
       })
       .parse(rJson);
+    const timeline = events
+      .filter((e) => e.type !== "evaluator")
+      .map((e) => `${e.type}: ${e.content}`.trim());
+    if (timeline.length) {
+      const evaluation = await aiClient.agents.evaluator({
+        worldName,
+        worldDescription,
+        timeline,
+      });
+      if (evaluation) {
+        const { valid, reason } = evaluation;
+
+        if (!valid) {
+          const newItem: EventItem = {
+            id: events.length + 1,
+            type: "evaluator",
+            content: reason ?? "You cannot do that.",
+          };
+
+          return json({
+            events: [...events.slice(0, -1), newItem],
+            error: null,
+          });
+        }
+      }
+    }
+
     const aiEvent = await aiClient.agents.dungeonMaster({
-      timeline: events.map((e) => `${e.type}: ${e.content}`.trim()),
+      timeline,
       worldDescription,
       worldName,
     });
+
     const newItem: EventItem = {
       id: events.length + 1,
       type: "dm",

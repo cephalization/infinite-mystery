@@ -8,7 +8,7 @@ import {
 
 export { replacer } from "./replacer";
 
-import { createDungeonMaster } from "./agents";
+import { createDungeonMaster, createEvaluator } from "./agents";
 
 const defaultCompletionQuery: CreateCompletionRequest = {
   model: "text-davinci-003",
@@ -46,6 +46,7 @@ export type Handlers = ReturnType<typeof createHandlers>;
 
 const createAgents = (handlers: Handlers) => ({
   dungeonMaster: createDungeonMaster(handlers),
+  evaluator: createEvaluator(handlers),
 });
 
 export const createAiClient = () => {

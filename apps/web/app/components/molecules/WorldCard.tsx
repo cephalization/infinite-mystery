@@ -18,7 +18,7 @@ export const WorldCard = ({
   imageSrc = DEFAULT_WORLD_IMG,
 }: WorldCardProps) => {
   return (
-    <div className="card card-compact w-48 sm:w-64 bg-primary text-primary-content shadow-2xl">
+    <div className="card card-compact w-full sm:w-64 bg-primary text-primary-content shadow-2xl">
       <figure className="sm:pt-6">
         <img
           src={imageSrc}
@@ -26,7 +26,7 @@ export const WorldCard = ({
           className={clsx(
             "rounded-xl rounded-bl-none rounded-br-none",
             "sm:rounded-bl-xl sm:rounded-br-xl",
-            "h-48 w-48 sm:h-56 sm:w-56"
+            "h-48 w-48 pt-4 sm:pt-0 sm:h-56 sm:w-56"
           )}
         />
       </figure>

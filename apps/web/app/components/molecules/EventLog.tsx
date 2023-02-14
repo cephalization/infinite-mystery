@@ -6,9 +6,14 @@ import { Stippled } from "../atoms/Stippled";
 import { ThreeDots } from "../icons/ThreeDots";
 
 export type EventItem = {
-  type: "dm" | "player";
+  type: "dm" | "player" | "evaluator";
   content: string;
   id: number | string;
+  wasInvalid?: boolean;
+};
+
+export type TimelineItem = Omit<EventItem, "type"> & {
+  type: "dm" | "player";
 };
 
 type EventLogProps = {
@@ -24,9 +29,16 @@ const DMEvent = ({ event }: { event: EventItem }) => {
   return <li className="preview_text border-l-4 pl-2">{event.content}</li>;
 };
 
+const EvaluatorEvent = ({ event }: { event: EventItem }) => {
+  return (
+    <li className="text-error border-l-4 pl-2 border-error">{event.content}</li>
+  );
+};
+
 const matchEvent = (evt: EventItem) => {
   if (evt.type === "dm") return DMEvent;
   if (evt.type === "player") return PlayerEvent;
+  if (evt.type === "evaluator") return EvaluatorEvent;
   return (_: { event: EventItem }) => null;
 };
 
