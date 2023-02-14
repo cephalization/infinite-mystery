@@ -11,9 +11,21 @@ export const ActionInput = forwardRef<HTMLInputElement, ActionInputProps>(
   ({ disabled, loading }, ref) => {
     return (
       <div className="form-control w-full">
-        <label className="label" htmlFor="action-input">
-          <span className="label-text">What will you do?</span>
-        </label>
+        <div className="flex justify-between">
+          <label className="label" htmlFor="action-input">
+            <span className="label-text">What will you do?</span>
+          </label>
+          <label className="label cursor-pointer flex gap-1">
+            <span className="label-text">Narc Mode</span>
+            <input
+              type="checkbox"
+              name="narc-mode"
+              id="narc-mode"
+              defaultChecked
+              className="checkbox"
+            />
+          </label>
+        </div>
         <div className="input-group w-full">
           <input
             type="text"

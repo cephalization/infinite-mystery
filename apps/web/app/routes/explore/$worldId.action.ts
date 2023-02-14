@@ -7,7 +7,7 @@ import { z } from "zod";
 export const action = async ({ request }: ActionArgs) => {
   try {
     const rJson = await request.json();
-    const { events, worldDescription, worldName } = z
+    const { events, worldDescription, worldName, narcMode } = z
       .object({
         events: z.array(
           z.object({
@@ -18,12 +18,13 @@ export const action = async ({ request }: ActionArgs) => {
         ),
         worldDescription: z.string(),
         worldName: z.string(),
+        narcMode: z.coerce.boolean().optional().default(true),
       })
       .parse(rJson);
     const timeline = events
       .filter((e) => e.type !== "evaluator")
       .map((e) => `${e.type}: ${e.content}`.trim());
-    if (timeline.length) {
+    if (timeline.length && narcMode) {
       const evaluation = await aiClient.agents.evaluator({
         worldName,
         worldDescription,

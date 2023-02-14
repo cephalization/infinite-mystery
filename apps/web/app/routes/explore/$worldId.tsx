@@ -28,11 +28,13 @@ const fetchEvents = async ({
   worldDescription,
   worldName,
   worldId,
+  narcMode,
 }: {
   events: EventItem[];
   worldName: string;
   worldDescription: string;
   worldId: number | string;
+  narcMode?: boolean;
 }) => {
   try {
     const response = await fetch(`/explore/${worldId}/action`, {
@@ -40,6 +42,7 @@ const fetchEvents = async ({
         events,
         worldName,
         worldDescription,
+        narcMode,
       }),
       method: "post",
     });
@@ -99,6 +102,7 @@ export default function ExploreWorldById() {
             const form = new FormData(e.currentTarget);
 
             const input = form.get("action-input");
+            const narcMode = form.get("narc-mode");
 
             if (input) {
               setLoading(true);
@@ -123,6 +127,7 @@ export default function ExploreWorldById() {
                   worldId,
                   worldName,
                   worldDescription,
+                  narcMode,
                 });
                 if (nextEvents) {
                   setEvents(nextEvents);
