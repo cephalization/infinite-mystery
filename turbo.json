@@ -30,6 +30,10 @@
         "^build"
       ]
     },
+    "test": {},
+    "test:w": {
+      "persistent": true
+    },
     "lint": {
       "cache": false
     },

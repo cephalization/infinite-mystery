@@ -3,12 +3,13 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
 import { ActionInput } from "~/components/molecules/ActionInput";
-import type { EventItem } from "~/components/molecules/EventLog";
 import { EventLog } from "~/components/molecules/EventLog";
 import { worlds as mockWorlds } from "~/mocks/worlds";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 import { useEffect, useRef, useState } from "react";
+import type { AnyEventSchema } from "~/events";
+import { playerEventSchema } from "~/events";
 
 export const loader = async ({ params }: LoaderArgs) => {
   try {
@@ -28,9 +29,9 @@ const fetchEvents = async ({
   worldDescription,
   worldName,
   worldId,
-  narcMode,
+  narcMode = true,
 }: {
-  events: EventItem[];
+  events: AnyEventSchema[];
   worldName: string;
   worldDescription: string;
   worldId: number | string;
@@ -57,7 +58,7 @@ export default function ExploreWorldById() {
   const initialized = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-  const [events, setEvents] = useState<EventItem[]>([]);
+  const [events, setEvents] = useState<AnyEventSchema[]>([]);
   const { world } = useLoaderData<typeof loader>();
 
   const worldId = world.id;
@@ -101,18 +102,18 @@ export default function ExploreWorldById() {
 
             const form = new FormData(e.currentTarget);
 
-            const input = form.get("action-input");
-            const narcMode = form.get("narc-mode");
+            const input = z.coerce.string().parse(form.get("action-input"));
+            const narcMode = z.coerce.boolean().parse(form.get("narc-mode"));
 
             if (input) {
               setLoading(true);
               const newEvents = [
                 ...events,
-                {
+                playerEventSchema.parse({
                   content: input.toString(),
                   type: "player",
                   id: events.length + 1,
-                } as EventItem,
+                }),
               ];
               setEvents(newEvents);
               if (inputRef.current) {
