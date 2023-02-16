@@ -37,8 +37,6 @@ export const replacer = <T extends Variables>({
 }) => {
   const keys = Object.keys(variables) as (keyof Variables)[];
 
-  console.log({ keys, variables });
-
   const arrayTypedKeys = [];
   let text = template;
   for (const key of keys) {
@@ -56,7 +54,7 @@ export const replacer = <T extends Variables>({
   }
 
   for (const key of arrayTypedKeys) {
-    const value = variables[key] as string[];
+    let value = variables[key] as string[];
     const accessor = `[${key}]`;
     let transformedValue = transformArrayToString(value);
 
@@ -65,11 +63,12 @@ export const replacer = <T extends Variables>({
       text.replaceAll(accessor, transformedValue).length >= maxLength
     ) {
       const [_oldest, ...restOfValues] = value;
-      transformedValue = transformArrayToString(restOfValues);
+      value = restOfValues;
+      transformedValue = transformArrayToString(value);
     }
 
     text = text.replaceAll(accessor, transformedValue);
   }
 
-  return text;
+  return text.trim();
 };

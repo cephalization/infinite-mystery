@@ -5,13 +5,7 @@ import { z } from "zod";
 const dungeonMasterVariablesSchema = z.object({
   worldName: z.string(),
   worldDescription: z.string(),
-  timeline: z.array(z.string()).transform((timeline) => {
-    if (!timeline.length) {
-      return ["DM:"];
-    }
-
-    return timeline;
-  }),
+  timeline: z.array(z.string()),
 });
 
 type DungeonMasterVariables = z.infer<typeof dungeonMasterVariablesSchema>;
@@ -31,6 +25,7 @@ and you will describe what happens when those actions are taken. Never say no to
 action they like, your job is only to describe what happens next. Your descriptions should be complete, informative, 
 interesting and well written. The player can also ask you questions about what they see in the world, and you should 
 give full descriptions of what their character would be seeing or experiencing.
+You should not ask the player any questions.
 
 Sample actions and responses:
 
@@ -58,14 +53,13 @@ This particular game takes place in a world called {worldName}.
 {worldName} is described like "{worldDescription}".
 
 The first response should be a brief introduction to the world, setting the stage for the player’s first action.
+Remember, you should not ask the player any questions, you just describe what occurs as a result of their actions.
 
 [timeline]
 `,
       variables: validatedVariables,
       canShorten: "timeline",
     });
-
-    console.log({ prompt, length: prompt.length });
 
     return handlers.completion(prompt);
   };
@@ -146,9 +140,8 @@ Action: {action}
 Evaluation:
 `,
       variables: variablesWithAction,
+      canShorten: "timeline",
     });
-
-    console.log({ prompt, length: prompt.length });
 
     const result = await handlers.completion(prompt);
 
