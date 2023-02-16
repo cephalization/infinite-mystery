@@ -22,23 +22,52 @@ export const createDungeonMaster =
     const validatedVariables = dungeonMasterVariablesSchema.parse(variables);
     validatedVariables.timeline = [...validatedVariables.timeline, "dm:"];
 
-    return handlers.completion(
-      replacer(
+    const prompt = replacer({
+      template:
         customTemplate ||
-          `
-You are the dungeon master (DM) for a role-playing mystery game.
-The game takes place in a world called {worldName}.
-{worldName} is described like "{worldDescription}".
-The player expects you to prompt them with a brief overview of their surroundings.
-The player will then respond with the action they would like to take.
-If the player has not responded, do not guess their response.
+        `
+You are the dungeon master (DM) for a role-playing game. The player will send actions they want to take in the world, 
+and you will describe what happens when those actions are taken. Never say no to the player, they can take whatever 
+action they like, your job is only to describe what happens next. Your descriptions should be complete, informative, 
+interesting and well written. The player can also ask you questions about what they see in the world, and you should 
+give full descriptions of what their character would be seeing or experiencing.
 
-Output:
+Sample actions and responses:
+
+- player: I walk through the carnival and look around
+- dm: Walking through the carnival grounds, you hear infectious laughter as children play the various games. The 
+smell of fruit and sugar wafts through the air as the workers peddle their foods, and up ahead the big tent looms over 
+the rest of the ensemble. A woman on painted stilts, smiling at you.
+
+- player: I enter the room
+- dm: You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the 
+wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles 
+to himself.
+
+- player: What do I see?
+- dm: To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors.
+ It smells like smoke.
+
+- player: I jump across the alley and try to hit him with my hammer
+- dm: You vault across the alley while winding back your hammer, and the perp can barely turn their head before you’ve
+brought it down on their head. They slump on the ground, motionless.
+
+End sample actions and responses
+
+This particular game takes place in a world called {worldName}.
+{worldName} is described like "{worldDescription}".
+
+The first response should be a brief introduction to the world, setting the stage for the player’s first action.
+
 [timeline]
 `,
-        validatedVariables
-      )
-    );
+      variables: validatedVariables,
+      canShorten: "timeline",
+    });
+
+    console.log({ prompt, length: prompt.length });
+
+    return handlers.completion(prompt);
   };
 
 const evaluatorVariablesSchema = z.object({
@@ -67,10 +96,10 @@ export const createEvaluator =
           .find((evt) => evt.toLowerCase().startsWith("player")) ?? "",
     };
 
-    const result = await handlers.completion(
-      replacer(
+    const prompt = replacer({
+      template:
         customTemplate ||
-          `
+        `
 You are assisting a Dungeon Master who is guiding a player through a scenario. 
 Your responsibility is to evaluate the validity of the action the player is 
 trying to take, considering the timeline of the player's
@@ -115,10 +144,13 @@ This is a timeline of what has happened to the player:
 
 Action: {action}
 Evaluation:
-  `,
-        variablesWithAction
-      )
-    );
+`,
+      variables: variablesWithAction,
+    });
+
+    console.log({ prompt, length: prompt.length });
+
+    const result = await handlers.completion(prompt);
 
     const resultText = result.data.choices.at(0)?.text ?? "";
 

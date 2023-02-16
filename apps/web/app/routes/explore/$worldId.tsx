@@ -29,13 +29,13 @@ const fetchEvents = async ({
   worldDescription,
   worldName,
   worldId,
-  narcMode = true,
+  realismMode = true,
 }: {
   events: AnyEventSchema[];
   worldName: string;
   worldDescription: string;
   worldId: number | string;
-  narcMode?: boolean;
+  realismMode?: boolean;
 }) => {
   try {
     const response = await fetch(`/explore/${worldId}/action`, {
@@ -43,7 +43,7 @@ const fetchEvents = async ({
         events,
         worldName,
         worldDescription,
-        narcMode,
+        realismMode,
       }),
       method: "post",
     });
@@ -103,7 +103,9 @@ export default function ExploreWorldById() {
             const form = new FormData(e.currentTarget);
 
             const input = z.coerce.string().parse(form.get("action-input"));
-            const narcMode = z.coerce.boolean().parse(form.get("narc-mode"));
+            const realismMode = z.coerce
+              .boolean()
+              .parse(form.get("realism-mode"));
 
             if (input) {
               setLoading(true);
@@ -128,7 +130,7 @@ export default function ExploreWorldById() {
                   worldId,
                   worldName,
                   worldDescription,
-                  narcMode,
+                  realismMode,
                 });
                 if (nextEvents) {
                   setEvents(nextEvents);

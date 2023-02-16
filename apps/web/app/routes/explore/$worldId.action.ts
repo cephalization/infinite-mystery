@@ -12,17 +12,17 @@ import {
 export const action = async ({ request }: ActionArgs) => {
   try {
     const rJson = await request.json();
-    const { events, worldDescription, worldName, narcMode } = z
+    const { events, worldDescription, worldName, realismMode } = z
       .object({
         events: z.array(eventSchema),
         worldDescription: z.string(),
         worldName: z.string(),
-        narcMode: z.coerce.boolean().optional().default(true),
+        realismMode: z.coerce.boolean().optional().default(true),
       })
       .parse(rJson);
     const timeline = makeTimelineFromEvents(events);
 
-    if (timeline.length && narcMode) {
+    if (timeline.length && realismMode) {
       const evaluation = await aiClient.agents.evaluator({
         worldName,
         worldDescription,
@@ -59,7 +59,11 @@ export const action = async ({ request }: ActionArgs) => {
     const newItem = dmEventSchema.parse({
       id: events.length + 1,
       type: "dm",
-      content: aiEvent.data.choices.at(0)?.text?.replace("- DM:", "") ?? "",
+      content:
+        aiEvent.data.choices
+          .at(0)
+          ?.text?.replace("- DM:", "")
+          .replace("- dm:", "") ?? "",
     });
 
     return json({ events: [...events, newItem], error: null });

@@ -16,11 +16,11 @@ export const ActionInput = forwardRef<HTMLInputElement, ActionInputProps>(
             <span className="label-text">What will you do?</span>
           </label>
           <label className="label cursor-pointer flex gap-1">
-            <span className="label-text">Narc Mode</span>
+            <span className="label-text">Realism Mode</span>
             <input
               type="checkbox"
-              name="narc-mode"
-              id="narc-mode"
+              name="realism-mode"
+              id="realism-mode"
               defaultChecked
               className="checkbox"
             />
