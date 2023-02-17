@@ -15,12 +15,12 @@ type DrawerProps = React.PropsWithChildren<{
 
 export const Drawer = ({ id, children, items = [] }: DrawerProps) => {
   return (
-    <div className="drawer drawer-mobile">
+    <div className="drawer drawer-mobile relative">
       <input id={id} type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col">
         <label
           htmlFor={id}
-          className="btn btn-primary btn-square btn-ghost lg:hidden self-end"
+          className="btn btn-primary btn-square btn-ghost lg:hidden self-end absolute"
         >
           <MenuIcon />
         </label>
@@ -28,8 +28,8 @@ export const Drawer = ({ id, children, items = [] }: DrawerProps) => {
       </div>
       <div className="drawer-side">
         <label htmlFor={id} className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-300 border-r border-base-100">
-          <li className="text-primary text-2xl p-4">
+        <ul className="menu p-4 pt-1 w-80 bg-base-300 border-r border-base-100">
+          <li className="text-primary text-2xl p-1">
             <Link to="/">Infinite Mystery</Link>
           </li>
           {items.map((item) => (

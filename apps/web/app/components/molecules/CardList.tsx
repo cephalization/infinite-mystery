@@ -6,7 +6,12 @@ type CardListProps = React.PropsWithChildren<{
 
 export const CardList = ({ children, className }: CardListProps) => {
   return (
-    <div className={clsx("w-full flex flex-wrap gap-8", className)}>
+    <div
+      className={clsx(
+        "w-full flex flex-wrap gap-8 shadow-inner shadow-base",
+        className
+      )}
+    >
       {children}
     </div>
   );
