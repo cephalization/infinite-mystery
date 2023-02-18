@@ -2,6 +2,7 @@ import { Link } from "@remix-run/react";
 import clsx from "clsx";
 import type { User } from "~/server/auth.server";
 import { MenuIcon } from "../icons/MenuIcon";
+import { ThemePicker } from "../molecules/ThemePicker";
 
 export type DrawerItem = {
   label: React.ReactNode;
@@ -30,17 +31,25 @@ export const Drawer = ({ id, children, items = [], user }: DrawerProps) => {
       </div>
       <div className="drawer-side">
         <label htmlFor={id} className="drawer-overlay"></label>
-        <ul className="menu p-4 pt-1 w-80 bg-base-300 border-r border-base-100">
+        <ul className="menu p-4 pt-1 w-80 bg-base-300 border-r border-base-100 gap-2">
           <li className="text-primary text-2xl p-1">
             <Link to="/">Infinite Mystery</Link>
           </li>
           {items.map((item) => (
             <li key={item.to}>
-              <Link className={clsx(item.active && "btn-active")} to={item.to}>
+              <Link
+                className={clsx(
+                  item.active && "btn-active text-neutral-content"
+                )}
+                to={item.to}
+              >
                 {item.label}
               </Link>
             </li>
           ))}
+          <li>
+            <ThemePicker />
+          </li>
           <li className="flex grow bg-inherit">
             <p className="sr-only">
               Spacer between navigation items and authentication items
