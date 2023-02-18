@@ -24,9 +24,26 @@ export default function Index() {
                 <p className="py-6">
                   Solve endless mysteries, in endless worlds, created by You.
                 </p>
-                <Link to="/explore" className="btn btn-primary">
-                  Explore
-                </Link>
+                <div className="flex w-full">
+                  {!user && (
+                    <>
+                      <div className="grid h-20 flex-grow place-items-center">
+                        <Link
+                          to="/login"
+                          className="btn btn-primary min-w-full"
+                        >
+                          Login
+                        </Link>
+                      </div>
+                      <div className="divider divider-horizontal">OR</div>
+                    </>
+                  )}
+                  <div className="grid h-20 flex-grow place-items-center">
+                    <Link to="/explore" className="btn btn-primary  min-w-full">
+                      Explore
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
