@@ -12,6 +12,16 @@ dotenvExpand.expand(myEnv);
 export const serverConfigSchema = {
   DATABASE_URL: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
+  COOKIE_SECRET: z.string().min(1),
+  DISCORD_CLIENT_ID: z.string().min(1),
+  DISCORD_CLIENT_SECRET: z.string().min(1),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  // hosted domain, localhost or deployed url
+  WEB_URL: z
+    .string()
+    .min(1)
+    .transform((s) => (s.endsWith("/") ? s.slice(0, s.length - 1) : s)),
 } as const;
 
 // parse env vars from schema

@@ -1,10 +1,20 @@
-import { Link } from "@remix-run/react";
+import type { LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { Route } from "~/components/layouts/Route";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
+import { authenticator } from "~/server/auth.server";
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const user = await authenticator.isAuthenticated(request);
+
+  return json({ user });
+};
 
 export default function Index() {
+  const { user } = useLoaderData<typeof loader>();
   return (
-    <Route>
+    <Route user={user}>
       <VerticalEdges>
         <section className="h-full">
           <div className="hero h-full mt-10 lg:mt-0 bg-base-200">

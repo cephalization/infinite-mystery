@@ -1,6 +1,6 @@
-import type { EventItem } from "~/components/molecules/EventLog";
+import type { AnyEventSchema } from "~/events";
 
-export const events: EventItem[] = (
+export const events: AnyEventSchema[] = (
   [
     {
       type: "dm",

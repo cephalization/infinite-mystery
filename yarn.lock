@@ -2983,6 +2983,11 @@ cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
+
 css-selector-tokenizer@^0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/css-selector-tokenizer/-/css-selector-tokenizer-0.8.0.tgz#88267ef6238e64f2215ea2764b3e2cf498b845dd"
@@ -3046,7 +3051,7 @@ debug@2.6.9:
   dependencies:
     ms "2.0.0"
 
-debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2, debug@^4.3.4:
+debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2, debug@^4.3.3, debug@^4.3.4:
   version "4.3.4"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
   integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
@@ -6792,6 +6797,15 @@ rc@1.2.8, rc@^1.2.8:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-dom@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
+  integrity sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    scheduler "^0.20.2"
+
 react-dom@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
@@ -7025,6 +7039,92 @@ remeda@^1.6.1:
   resolved "https://registry.yarnpkg.com/remeda/-/remeda-1.6.1.tgz#9cd7b53217b90bd9bafffadefe883c4120f4dcde"
   integrity sha512-ywn4Tv2cPBj6hk0TEYMHusWVXu72yJNCaWUdMK7kc7x/PjQPBSvtMbmBWP4PQH791kpl3rPBe3ZVkJyPj3c+0g==
 
+remix-auth-discord@^1.2.0:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/remix-auth-discord/-/remix-auth-discord-1.2.1.tgz#670039f8a63effe4eb5012cd85d252e6b2e2e9d6"
+  integrity sha512-tA3lhN4PEarCfLF5XIWHrVxC3RaDCwt2wp2IcOlriIYSPEl2pTmhgZrsGIS4inEz7n8matnVm+kHr+L/diRJFw==
+  dependencies:
+    remix-auth "^3.0.0"
+    remix-auth-oauth2 "^1.0.0"
+
+remix-auth-facebook@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/remix-auth-facebook/-/remix-auth-facebook-0.0.8.tgz#1968b74b87c4faee46d2aa6f2c420f9b4fd830ca"
+  integrity sha512-J08Hj4MwDZ9DNg1FWi/loMQDeVCQyO2tYVVHyqj8OxTF3mSTBj2MNIBfg2/miCIVIhqPtYBrNszXrUh7WDYIKg==
+  dependencies:
+    remix-auth-oauth2 "^1.2.2"
+
+remix-auth-github@^1.2.1:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/remix-auth-github/-/remix-auth-github-1.3.0.tgz#1cbb5d2246902e796a17c8b379a050c8d1d29453"
+  integrity sha512-dqveIbXc1yXQXiB8UVjKSR3qgHFUZ0VJOu2/GTT5uMKZY0//FSnp1w8gK0btGlbc1HW97gig16uS84et6FBMiA==
+  dependencies:
+    remix-auth-oauth2 "^1.4.0"
+
+remix-auth-google@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/remix-auth-google/-/remix-auth-google-1.2.0.tgz#1cb78a74fe781537f083c5066a6ae05fc15a3efd"
+  integrity sha512-llyrtOt8vk503XlAoEdGuEmrHRACFOP13yPVn92VkrcogTUyALzuy8ky2O1/FSJ7Q2+B0di5yMiCF4IYD/Yn4g==
+  dependencies:
+    remix-auth-oauth2 "^1.1.0"
+
+remix-auth-linkedin@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/remix-auth-linkedin/-/remix-auth-linkedin-1.0.1.tgz#e6b52c5d2debac19e48ab4fcbd151918775ac962"
+  integrity sha512-ssHXqx3nCmSIfGp8zOXkGY/TZ40bxpi8HsGnFzaWHWJImcyEQQGySB4PHaH0da9Yo7TvcjmQtZaNl66whkcS2g==
+  dependencies:
+    remix-auth "^3.2.1"
+    remix-auth-oauth2 "^1.2.0"
+
+remix-auth-microsoft@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/remix-auth-microsoft/-/remix-auth-microsoft-2.0.0.tgz#0987d5e8a3945c1f0ce51b16f4025424145c111d"
+  integrity sha512-SfTUvnRe+NIN8frSpAXpwjWBaPV8cM8a8TePbCtgmUy0eexwYM7SZTaEmT75C1XkMa3cVGlEQeKdovPMn0EaQw==
+  dependencies:
+    remix-auth "^3.0.0"
+    remix-auth-oauth2 "^1.0.0"
+
+remix-auth-oauth2@^1.0.0, remix-auth-oauth2@^1.1.0, remix-auth-oauth2@^1.2.0, remix-auth-oauth2@^1.2.2, remix-auth-oauth2@^1.4.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/remix-auth-oauth2/-/remix-auth-oauth2-1.6.0.tgz#347db1c9bfac934ca6e90288c917cbba711021bd"
+  integrity sha512-HnMgdKn/+LIKHYlbxys14g9cUMGvzMS9mbopAfnntIYWBC8MOfUy6uYyyoWJNqm3HriAE/MiEUaTnlz3B0c7uQ==
+  dependencies:
+    debug "^4.3.4"
+    remix-auth "^3.4.0"
+    uuid "^8.3.2"
+
+remix-auth-socials@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/remix-auth-socials/-/remix-auth-socials-2.0.4.tgz#36d49a9958ee50c1e33f425a2fc49fa7f8b24c35"
+  integrity sha512-f406GvLEk8TSdYwdsL4VvEAkqzLVUPH9d30djZFnMAaFEMCh4A+hcrUwq62Kn3MJ/YOYPQEoH3cefmh7udidbg==
+  dependencies:
+    remix-auth "^3.4.0"
+    remix-auth-discord "^1.2.0"
+    remix-auth-facebook "^0.0.8"
+    remix-auth-github "^1.2.1"
+    remix-auth-google "^1.2.0"
+    remix-auth-linkedin "^1.0.1"
+    remix-auth-microsoft "^2.0.0"
+    remix-auth-twitter "^0.1.1"
+
+remix-auth-twitter@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/remix-auth-twitter/-/remix-auth-twitter-0.1.1.tgz#922653781511f8c6c27fa9369f33f02d14b43ade"
+  integrity sha512-6Qej/LZHYAQzG51Fqu14vqWLZGKzRkAXx77x17potJtxwSzGpy8OsqdhTm/EBbT/RKg71CsomQVpSWEq5E1Vig==
+  dependencies:
+    crypto-js "^4.1.1"
+    debug "^4.3.3"
+    react-dom "^17.0.2"
+    remix-auth "^3.2.2"
+    uuid "^8.3.2"
+
+remix-auth@^3.0.0, remix-auth@^3.2.1, remix-auth@^3.2.2, remix-auth@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/remix-auth/-/remix-auth-3.4.0.tgz#a3cd4455477f6c60f6cf1bad0ae119101a6d8ff8"
+  integrity sha512-VRliJo9VRAS4sSYgMjYbi7rYRixPWU2Tb8PFZb06OIj0nONK/1KRzHf2+Y6VGZeIacepLVgan6g2IUJjayE2rQ==
+  dependencies:
+    uuid "^8.3.2"
+
 "require-like@>= 0.1.1":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/require-like/-/require-like-0.1.2.tgz#ad6f30c13becd797010c468afa775c0c0a6b47fa"
@@ -7186,6 +7286,14 @@ safe-regex-test@^1.0.0:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
+
+scheduler@^0.20.2:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
+  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
 
 scheduler@^0.23.0:
   version "0.23.0"
@@ -8164,6 +8272,11 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
+
+uuid@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 uvu@^0.5.0:
   version "0.5.6"

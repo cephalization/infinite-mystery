@@ -1,5 +1,6 @@
 import { Link } from "@remix-run/react";
 import clsx from "clsx";
+import type { User } from "~/server/auth.server";
 import { MenuIcon } from "../icons/MenuIcon";
 
 export type DrawerItem = {
@@ -11,9 +12,10 @@ export type DrawerItem = {
 type DrawerProps = React.PropsWithChildren<{
   id: string;
   items?: DrawerItem[];
+  user?: User;
 }>;
 
-export const Drawer = ({ id, children, items = [] }: DrawerProps) => {
+export const Drawer = ({ id, children, items = [], user }: DrawerProps) => {
   return (
     <div className="drawer drawer-mobile relative">
       <input id={id} type="checkbox" className="drawer-toggle" />
@@ -39,6 +41,25 @@ export const Drawer = ({ id, children, items = [] }: DrawerProps) => {
               </Link>
             </li>
           ))}
+          <li className="flex grow bg-inherit">
+            <p className="sr-only">
+              Spacer between navigation items and authentication items
+            </p>
+          </li>
+          {user ? (
+            <>
+              <li>
+                <Link to="/profile">Hi, {user.displayName}</Link>
+              </li>
+              <li>
+                <Link to="/logout">Logout</Link>
+              </li>
+            </>
+          ) : (
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          )}
         </ul>
       </div>
     </div>
