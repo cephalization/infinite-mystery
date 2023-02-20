@@ -19,6 +19,7 @@
     "fix-deps": "manypkg fix",
     "postinstall": "manypkg check",
     "db-init": "prisma migrate dev --name init",
+    "db:push": "turbo run db:push -- --accept-data-loss",
     "# docker management commands": "",
     "d-up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d",
     "d-down": "docker-compose down --remove-orphans",

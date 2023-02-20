@@ -1,1 +1,1 @@
-export { prisma } from "database";
+export { prisma, Prisma } from "database";

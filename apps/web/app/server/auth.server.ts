@@ -4,15 +4,13 @@ import { GoogleStrategy, SocialsProvider } from "remix-auth-socials";
 import { DiscordStrategy } from "remix-auth-socials";
 import { sessionStorage } from "~/server/session.server";
 import { serverConfig } from "./config.server";
+import type { AuthenticatedUser } from "./database/user.server";
+import { authenticateUser } from "./database/user.server";
 
 /**
  * User Type
- *
- * @TODO determine what user information to grab from auth provider
  */
-export type User = {
-  displayName: string;
-};
+export type User = AuthenticatedUser;
 
 // Create an instance of the authenticator
 export let authenticator = new Authenticator<User>(sessionStorage, {
@@ -33,8 +31,8 @@ authenticator.use(
       callbackURL: getCallback(SocialsProvider.GOOGLE),
     },
     async ({ profile }) => {
-      // @TODO look up or create user with google details
-      return profile;
+      const user = await authenticateUser(profile, "google");
+      return user;
     }
   )
 );
@@ -47,8 +45,8 @@ authenticator.use(
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
     async ({ profile }) => {
-      // @TODO look up or create user with discord details
-      return profile;
+      const user = await authenticateUser(profile, "discord");
+      return user;
     }
   )
 );

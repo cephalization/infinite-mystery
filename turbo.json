@@ -30,6 +30,9 @@
         "^build"
       ]
     },
+    "db:push": {
+      "cache": false
+    },
     "test": {},
     "test:w": {
       "persistent": true
