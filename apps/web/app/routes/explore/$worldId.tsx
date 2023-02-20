@@ -4,18 +4,18 @@ import { useLoaderData } from "@remix-run/react";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
 import { ActionInput } from "~/components/molecules/ActionInput";
 import { EventLog } from "~/components/molecules/EventLog";
-import { worlds as mockWorlds } from "~/mocks/worlds";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 import { useEffect, useRef, useState } from "react";
 import type { AnyEventSchema } from "~/events";
 import { playerEventSchema } from "~/events";
+import { getWorldById } from "~/server/database/world.server";
 
 export const loader = async ({ params }: LoaderArgs) => {
   try {
     const worldId = z.coerce.number().parse(params.worldId);
-    const world = mockWorlds.find((w) => w.id === worldId);
-    invariant(world !== undefined);
+    const world = await getWorldById(worldId);
+    invariant(world !== null);
     return json({
       world,
     });

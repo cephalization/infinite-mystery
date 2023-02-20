@@ -8,5 +8,9 @@ module.exports = {
     darkTheme: "coffee",
     themes: ["coffee", "dark", "synthwave", "dracula", "night"],
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/forms"),
+    require("daisyui"),
+  ],
 };

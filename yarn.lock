@@ -1803,6 +1803,13 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
+"@tailwindcss/forms@^0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/forms/-/forms-0.5.3.tgz#e4d7989686cbcaf416c53f1523df5225332a86e7"
+  integrity sha512-y5mb86JUoiUgBjY/o6FJSFZSEttfb3Q5gllE4xoKjAAD+vBrnIhE4dViwUuow3va8mpH4s9jyUbUbrRGoRdc2Q==
+  dependencies:
+    mini-svg-data-uri "^1.2.3"
+
 "@tailwindcss/typography@^0.5.9":
   version "0.5.9"
   resolved "https://registry.yarnpkg.com/@tailwindcss/typography/-/typography-0.5.9.tgz#027e4b0674929daaf7c921c900beee80dbad93e8"
@@ -5922,6 +5929,11 @@ mimic-response@^3.1.0:
   resolved "https://registry.yarnpkg.com/mimic-response/-/mimic-response-3.1.0.tgz#2d1d59af9c1b129815accc2c46a022a5ce1fa3c9"
   integrity sha512-z0yWI+4FDrrweS8Zmt4Ej5HdJmky15+L2e6Wgn3+iK5fWzb6T3fhNFq2+MeTRb064c6Wr4N/wv0DzQTjNzHNGQ==
 
+mini-svg-data-uri@^1.2.3:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/mini-svg-data-uri/-/mini-svg-data-uri-1.4.4.tgz#8ab0aabcdf8c29ad5693ca595af19dd2ead09939"
+  integrity sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==
+
 minimatch@^3.0.4, minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.2.tgz#19cd194bfd3e428f049a70817c038d89ab4be35b"
@@ -8602,6 +8614,11 @@ znv@^0.3.2:
   integrity sha512-dyQ2gfDe5RgEL7hKue1dFswmy4vzb/SRnLLRHaHNm39JteKstFs47I0nevlEa3oOWNMJ7XB4V1l/IdcLezPwoA==
   dependencies:
     colorette "^2.0.19"
+
+zod-form-data@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/zod-form-data/-/zod-form-data-1.3.1.tgz#9f2d8cab45ad052e995986c0ec6e2e53f0f7f88e"
+  integrity sha512-Uicl6vXkAqsc58Zj8ktmIJOIa3W+iI1fbfFNlGbfxBXiSZzuOiSKvIQQZAvU8H14kVgpKUpvhnBlrskis5t8HQ==
 
 zod@^3.20.6:
   version "3.20.6"

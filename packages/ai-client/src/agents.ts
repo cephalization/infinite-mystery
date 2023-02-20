@@ -96,7 +96,7 @@ export const createEvaluator =
         `
 You are assisting a Dungeon Master who is guiding a player through a scenario. 
 Your responsibility is to evaluate the validity of the action the player is 
-trying to take, considering the timeline of the player's
+trying to take (this includes questions the player is asking the DM), considering the timeline of the player's
 actions so far, information about the world they are in, and their location
 and current status.
 
