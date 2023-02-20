@@ -30,8 +30,8 @@ model Mystery {
   User       User?    @relation(fields: [userId], references: [id])
   userId     Int?
   previewImg String?
-  World      World?   @relation(fields: [worldId], references: [id])
-  worldId    Int?
+  World      World    @relation(fields: [worldId], references: [id])
+  worldId    Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

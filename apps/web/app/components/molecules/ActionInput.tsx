@@ -5,6 +5,7 @@ import { ArrowRightCircleIcon } from "../icons/ArrowRightCircleIcon";
 type ActionInputProps = {
   disabled?: boolean;
   loading?: boolean;
+  withRealismToggle?: boolean;
 };
 
 export const ActionInput = forwardRef<HTMLInputElement, ActionInputProps>(

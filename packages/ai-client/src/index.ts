@@ -8,7 +8,11 @@ import {
 
 export { replacer } from "./replacer";
 
-import { createDungeonMaster, createEvaluator } from "./agents";
+import {
+  createExploreDungeonMaster,
+  createEvaluator,
+  createMysteryDungeonMaster,
+} from "./agents";
 
 const defaultCompletionQuery: CreateCompletionRequest = {
   model: "text-davinci-003",
@@ -45,7 +49,8 @@ const createHandlers = (client: OpenAIApi) => ({
 export type Handlers = ReturnType<typeof createHandlers>;
 
 const createAgents = (handlers: Handlers) => ({
-  dungeonMaster: createDungeonMaster(handlers),
+  exploreDungeonMaster: createExploreDungeonMaster(handlers),
+  mysteryDungeonMaster: createMysteryDungeonMaster(handlers),
   evaluator: createEvaluator(handlers),
 });
 

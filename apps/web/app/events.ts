@@ -5,7 +5,8 @@ export type AnyEventSchema =
   | EventSchema
   | PlayerEventSchema
   | DMEventSchema
-  | EvaluatorEventSchema;
+  | EvaluatorEventSchema
+  | SummaryEventSchema;
 
 export const eventSchema = z
   .object({
@@ -13,6 +14,7 @@ export const eventSchema = z
       z.literal("player"),
       z.literal("dm"),
       z.literal("evaluator"),
+      z.literal("summary"),
     ]),
     content: z.string(),
     id: z.coerce.number(),
@@ -36,6 +38,14 @@ export const dmEventSchema = eventSchema.merge(
   })
 );
 
+export type SummaryEventSchema = z.infer<typeof dmEventSchema>;
+
+export const summaryEventSchema = eventSchema.merge(
+  z.object({
+    type: z.literal("summary"),
+  })
+);
+
 export type DMEventSchema = z.infer<typeof dmEventSchema>;
 
 export const evaluatorEventSchema = eventSchema.merge(
@@ -53,10 +63,10 @@ export type EvaluatorEventSchema = z.infer<typeof evaluatorEventSchema>;
  * Evaluator events, invalid player events should not be
  */
 export const processableSchema = z.discriminatedUnion("type", [
-  dmEventSchema,
-  playerEventSchema.merge(
-    z.object({ invalidAction: z.literal(false).optional() })
-  ),
+  summaryEventSchema,
+  // playerEventSchema.merge(
+  //   z.object({ invalidAction: z.literal(false).optional() })
+  // ),
 ]);
 
 export type ProcessableSchema = z.infer<typeof processableSchema>;
@@ -95,5 +105,5 @@ export const filterEventsByType = <S extends z.ZodTypeAny>(
  */
 export const makeTimelineFromEvents = (events: EventSchema[]) =>
   filterEventsByType(events, processableSchema).map((e) =>
-    `${e.type}: ${e.content}`.trim()
+    `${e.content}`.trim()
   );

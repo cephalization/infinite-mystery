@@ -9,31 +9,32 @@ import {
   makeTimelineFromEvents,
   summaryEventSchema,
 } from "~/events";
-import * as R from "remeda";
+import { getMysteryById } from "~/server/database/mystery.server";
 import invariant from "tiny-invariant";
-import { getWorldById } from "~/server/database/world.server";
+import * as R from "remeda";
 
 export const action = async ({ request }: ActionArgs) => {
   try {
     const rJson = await request.json();
-    const { events, realismMode, worldId } = z
+    const { events, mysteryId, realismMode } = z
       .object({
         events: z.array(eventSchema),
+        mysteryId: z.coerce.number(),
         realismMode: z.coerce.boolean().optional().default(true),
-        worldId: z.coerce.number(),
       })
       .parse(rJson);
-    const world = await getWorldById(worldId);
-    invariant(world !== null);
+    const mystery = await getMysteryById(mysteryId, true);
+    invariant(mystery !== null);
+    const { World: world } = mystery;
     const timeline = makeTimelineFromEvents(events);
     const action = `${
       R.findLast(events, (e) => e.type === "player")?.content ?? ""
     }`;
-    const { name: worldName, description: worldDescription } = world;
+
     if (timeline.length && realismMode) {
       const evaluation = await aiClient.agents.evaluator({
-        worldName,
-        worldDescription,
+        worldName: world.name,
+        worldDescription: world.description,
         timeline,
         action,
       });
@@ -59,12 +60,18 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
 
-    const aiEvent = await aiClient.agents.exploreDungeonMaster({
+    const aiEvent = await aiClient.agents.mysteryDungeonMaster({
       timeline,
-      worldDescription,
-      worldName,
+      worldDescription: world.description,
+      worldName: world.name,
+      brief: mystery.brief,
+      crime: mystery.crime,
       action,
     });
+
+    if (aiEvent.status < 200 || aiEvent.status > 299) {
+      throw new Error("Bad ai response");
+    }
 
     const parts =
       aiEvent.data.choices

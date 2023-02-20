@@ -9,35 +9,35 @@ import { z } from "zod";
 import { useEffect, useRef, useState } from "react";
 import type { AnyEventSchema } from "~/events";
 import { playerEventSchema } from "~/events";
-import { getWorldById } from "~/server/database/world.server";
+import { getMysteryById } from "~/server/database/mystery.server";
 
 export const loader = async ({ params }: LoaderArgs) => {
   try {
-    const worldId = z.coerce.number().parse(params.worldId);
-    const world = await getWorldById(worldId);
-    invariant(world !== null);
+    const mysteryId = z.coerce.number().parse(params.mysteryId);
+    const mystery = await getMysteryById(mysteryId);
+    invariant(mystery !== null);
     return json({
-      world,
+      mystery,
     });
   } catch (e) {
-    return redirect("/explore");
+    return redirect("/mystery");
   }
 };
 
 const fetchEvents = async ({
   events,
-  worldId,
-  realismMode = true,
+  mysteryId,
+  realismMode,
 }: {
   events: AnyEventSchema[];
-  worldId: number | string;
+  mysteryId: number | string;
   realismMode?: boolean;
 }) => {
   try {
-    const response = await fetch(`/explore/${worldId}/action`, {
+    const response = await fetch(`/mystery/${mysteryId}/action`, {
       body: JSON.stringify({
         events,
-        worldId,
+        mysteryId,
         realismMode,
       }),
       method: "post",
@@ -49,21 +49,22 @@ const fetchEvents = async ({
   }
 };
 
-export default function ExploreWorldById() {
+export default function ExploremysteryById() {
   const initialized = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<AnyEventSchema[]>([]);
-  const { world } = useLoaderData<typeof loader>();
+  const { mystery } = useLoaderData<typeof loader>();
+  const { World: world } = mystery;
 
-  const worldId = world.id;
+  const mysteryId = mystery.id;
   useEffect(() => {
     const f = async () => {
       initialized.current = true;
       setLoading(true);
       const initialEvents = await fetchEvents({
         events: [],
-        worldId,
+        mysteryId,
       });
       setLoading(false);
       if (initialEvents) {
@@ -74,15 +75,22 @@ export default function ExploreWorldById() {
     if (!initialized.current) {
       f();
     }
-  }, [worldId]);
+  }, [mysteryId]);
+
+  console.log({ events });
 
   return (
     <VerticalEdges>
       <section>
         <h1 className="text-3xl">
-          Welcome to <b className="text-primary">{world.name}</b>
+          Mystery <b className="text-primary">{mystery.title}</b>
         </h1>
-        <h3 className="text-neutral-content">{world.description}</h3>
+        <h3 className="text-neutral-content">{mystery.brief}</h3>
+        <br />
+        <h1 className="text-xl">
+          Location: <b className="text-primary">{world.name}</b>
+        </h1>
+        <h3 className="text-sm text-neutral-content">{world.description}</h3>
       </section>
       <section>
         <EventLog events={events} loading={loading} />
@@ -118,7 +126,7 @@ export default function ExploreWorldById() {
               try {
                 const nextEvents = await fetchEvents({
                   events: newEvents,
-                  worldId,
+                  mysteryId,
                   realismMode,
                 });
                 if (nextEvents) {

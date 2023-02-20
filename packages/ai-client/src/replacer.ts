@@ -62,6 +62,10 @@ export const replacer = <T extends Variables>({
       canShorten === key &&
       text.replaceAll(accessor, transformedValue).length >= maxLength
     ) {
+      if (value.length === 1) {
+        break;
+      }
+      console.log(`Shortening ${key} to ${value.length - 1} entries`);
       const [_oldest, ...restOfValues] = value;
       value = restOfValues;
       transformedValue = transformArrayToString(value);

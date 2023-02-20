@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "start": "turbo run start:prod",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --no-daemon",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
@@ -20,6 +20,7 @@
     "postinstall": "manypkg check",
     "db-init": "prisma migrate dev --name init",
     "db:push": "turbo run db:push -- --accept-data-loss",
+    "db:seed": "turbo run db:seed",
     "# docker management commands": "",
     "d-up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d",
     "d-down": "docker-compose down --remove-orphans",
