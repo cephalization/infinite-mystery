@@ -16,6 +16,7 @@ import invariant from "tiny-invariant";
 import {
   addEventToMysteryEventSession,
   getMysteryEventSessionById,
+  initializeMysteryEventSession,
 } from "~/server/database/eventSession.server";
 
 export const action = async ({ request }: ActionArgs) => {
@@ -35,6 +36,26 @@ export const action = async ({ request }: ActionArgs) => {
       id: mysterySessionId,
     });
     invariant(mysterySession !== null);
+
+    const willGenerateBriefing = !playerInput && !mysterySession.initialized;
+
+    if (!playerInput && mysterySession.initialized) {
+      return json(
+        {
+          error: "Can not accept empty player input",
+          detail: "Can not accept empty player input",
+          success: false,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (willGenerateBriefing) {
+      await initializeMysteryEventSession({
+        mysteryEventSessionId: mysterySessionId,
+      });
+    }
+
     const { World: world } = mystery;
     const timeline = makeTimelineFromEvents(
       filterEventsByType(mysterySession.Event, eventSchema)

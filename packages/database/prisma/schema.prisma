@@ -58,9 +58,12 @@ model WorldEventSession {
   // every event session is tied to a user
   User    User    @relation(fields: [userId], references: [id])
   userId  Int
-  // A session _could_ be created for a world
+  // A session is created for a world
   World   World   @relation(fields: [worldId], references: [id])
   worldId Int
+
+  // False if a brief has never been generated for this session
+  initialized Boolean @default(false)
 }
 
 model MysteryEventSession {
@@ -69,9 +72,12 @@ model MysteryEventSession {
   // every event session is tied to a user
   User      User    @relation(fields: [userId], references: [id])
   userId    Int
-  // A session _could be created for a mystery
+  // A session is created for a mystery
   Mystery   Mystery @relation(fields: [mysteryId], references: [id])
   mysteryId Int
+
+  // False if a brief has never been generated for this session
+  initialized Boolean @default(false)
 }
 
 model Event {

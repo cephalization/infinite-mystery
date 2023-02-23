@@ -103,6 +103,21 @@ export const addEventToMysteryEventSession = ({
   });
 };
 
+export const initializeMysteryEventSession = ({
+  mysteryEventSessionId,
+}: {
+  mysteryEventSessionId: number;
+}) => {
+  return prisma.mysteryEventSession.update({
+    where: {
+      id: mysteryEventSessionId,
+    },
+    data: {
+      initialized: true,
+    },
+  });
+};
+
 export const addEventToWorldEventSession = ({
   input,
   worldEventSessionId,
@@ -118,6 +133,21 @@ export const addEventToWorldEventSession = ({
           id: worldEventSessionId,
         },
       },
+    },
+  });
+};
+
+export const initializeWorldEventSession = ({
+  worldEventSessionId,
+}: {
+  worldEventSessionId: number;
+}) => {
+  return prisma.worldEventSession.update({
+    where: {
+      id: worldEventSessionId,
+    },
+    data: {
+      initialized: true,
     },
   });
 };
