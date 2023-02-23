@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { scrollIntoView } from "seamless-scroll-polyfill";
 import type {
   AnyEventSchema,
@@ -74,7 +74,7 @@ const matchEvent = <E extends AnyEventSchema>(evt: E) => {
 export const EventLog = ({ events = [], loading }: EventLogProps) => {
   const scrollRef = useRef<HTMLLIElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (scrollRef.current) {
       // whenever new events are pushed, scroll to the bottom
       scrollIntoView(scrollRef.current, { block: "end" });
