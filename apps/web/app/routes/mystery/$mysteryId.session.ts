@@ -31,7 +31,6 @@ export const action = async ({ request }: ActionArgs) => {
       .parse(rJson);
     const mystery = await getMysteryById(mysteryId, true);
     invariant(mystery !== null);
-    console.log(mystery);
     const mysterySession = await getMysteryEventSessionById({
       id: mysterySessionId,
     });
@@ -119,10 +118,12 @@ export const action = async ({ request }: ActionArgs) => {
         type: "player",
         content: playerInput,
       });
-    await addEventToMysteryEventSession({
-      input: newPlayerItem,
-      mysteryEventSessionId: mysterySessionId,
-    });
+    if (newPlayerItem.content) {
+      await addEventToMysteryEventSession({
+        input: newPlayerItem,
+        mysteryEventSessionId: mysterySessionId,
+      });
+    }
     await addEventToMysteryEventSession({
       input: newDMItem,
       mysteryEventSessionId: mysterySessionId,

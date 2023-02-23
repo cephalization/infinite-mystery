@@ -134,21 +134,8 @@ export const loader = async ({ params, request }: LoaderArgs) => {
         userId: user.id,
         mysteryId,
       });
-      if (eventSession.Event.length) {
-        events = filterEventsByType(eventSession.Event, eventSchema);
-      } else {
-        console.log(eventSession);
-        await persistEvents({
-          playerInput: "",
-          mysteryId,
-          mysterySessionId: eventSession.id,
-        });
-        const refreshedEventSession = await getEventSessionByMysteryId({
-          userId: user.id,
-          mysteryId,
-        });
-        events = filterEventsByType(refreshedEventSession.Event, eventSchema);
-      }
+
+      events = filterEventsByType(eventSession.Event, eventSchema);
     }
     invariant(mystery !== null);
     return json({
@@ -162,6 +149,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function ExploremysteryById() {
   const inputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const { mystery, events: loaderEvents } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const transition = useTransition();
@@ -171,18 +159,36 @@ export default function ExploremysteryById() {
   const loading = transition.state === "submitting";
   const { World: world } = mystery;
 
+  // Submit an empty player action if there are no events yet
+  useEffect(() => {
+    if (!events.length) {
+      submit(formRef.current, {
+        replace: true,
+        method: "post",
+        preventScrollReset: true,
+      });
+    }
+  }, [submit, events]);
+
+  // Load new events into local state when received via an action
   useEffect(() => {
     if (actionData?.events.length) {
       setEvents(actionData.events);
     }
   }, [actionData]);
 
+  /**
+   * Handle form submissions
+   *
+   * We do this in JS via native event handling so that we can mess with input
+   * and scroll during submission
+   */
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+
     if (loading) return;
 
     const form = new FormData(e.currentTarget);
-
     const input = z.coerce.string().parse(form.get("action-input"));
 
     if (input) {
@@ -192,13 +198,14 @@ export default function ExploremysteryById() {
         method: "post",
         preventScrollReset: true,
       });
+
       if (inputRef.current) {
         inputRef.current.value = "";
         // HACK
         // blur the input so that safari doesn't hijack scroll
         inputRef.current.blur();
+        inputRef.current.focus();
       }
-      inputRef.current?.focus();
     }
   };
 
@@ -217,7 +224,7 @@ export default function ExploremysteryById() {
       </section>
       <section>
         <EventLog events={events} loading={loading} />
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} ref={formRef}>
           <ActionInput loading={loading} disabled={loading} ref={inputRef} />
         </Form>
       </section>
