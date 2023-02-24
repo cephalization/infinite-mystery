@@ -10,6 +10,7 @@ type EventFormProps = {
   events?: AnyEventSchema[];
   addOptimisticEvent?: (evt: Omit<PlayerEventSchema, "id">) => void;
   className?: string;
+  onSubmit?: (e: HTMLFormElement) => void;
 };
 
 export const EventForm = ({
@@ -17,10 +18,23 @@ export const EventForm = ({
   addOptimisticEvent,
   events = [],
   className,
+  onSubmit,
 }: EventFormProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const submit = useSubmit();
+
+  const submitFn = (e: HTMLFormElement) => {
+    if (onSubmit) {
+      return onSubmit(e);
+    }
+
+    return submit(e, {
+      replace: true,
+      method: "post",
+      preventScrollReset: true,
+    });
+  };
 
   /**
    * Handle form submissions
@@ -42,11 +56,7 @@ export const EventForm = ({
         content: input,
         invalidAction: false,
       });
-      submit(e.currentTarget, {
-        replace: true,
-        method: "post",
-        preventScrollReset: true,
-      });
+      submitFn(e.currentTarget);
 
       if (inputRef.current) {
         inputRef.current.value = "";

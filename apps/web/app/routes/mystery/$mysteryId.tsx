@@ -153,6 +153,8 @@ export const loader = async ({ params, request }: LoaderArgs) => {
       }
 
       initialized = eventSession.initialized;
+    } else {
+      return redirect(`/mystery/${mysteryId}/local`);
     }
 
     return json({
