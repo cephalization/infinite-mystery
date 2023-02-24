@@ -1,5 +1,5 @@
 import { Form, useSubmit } from "@remix-run/react";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { z } from "zod";
 import type { AnyEventSchema, PlayerEventSchema } from "~/events";
 import { ActionInput } from "./ActionInput";
@@ -10,7 +10,6 @@ type EventFormProps = {
   events?: AnyEventSchema[];
   addOptimisticEvent?: (evt: Omit<PlayerEventSchema, "id">) => void;
   className?: string;
-  intializeEvents?: boolean;
 };
 
 export const EventForm = ({
@@ -18,22 +17,10 @@ export const EventForm = ({
   addOptimisticEvent,
   events = [],
   className,
-  intializeEvents,
 }: EventFormProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const submit = useSubmit();
-
-  // Submit an empty player action if there are no events yet
-  // useEffect(() => {
-  //   if (!events.length && intializeEvents) {
-  //     submit(formRef.current, {
-  //       replace: true,
-  //       method: "post",
-  //       preventScrollReset: true,
-  //     });
-  //   }
-  // }, [submit, events, intializeEvents]);
 
   /**
    * Handle form submissions
