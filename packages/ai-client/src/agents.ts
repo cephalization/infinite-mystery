@@ -5,10 +5,12 @@ import { z } from "zod";
 const mysteryDungeonMasterVariablesSchema = z.object({
   worldName: z.string(),
   worldDescription: z.string(),
-  timeline: z.array(z.string()),
+  timeline: z
+    .array(z.string())
+    .transform((a) => a.map((b) => b.replaceAll("summary:", "dm:"))),
   crime: z.string(),
   brief: z.string(),
-  action: z.string().transform((a) => `- player: ${a}`),
+  action: z.string().transform((a) => (a ? `- player: ${a}` : a)),
 });
 
 type MysteryDungeonMasterVariables = z.infer<
@@ -20,43 +22,43 @@ export const createMysteryDungeonMaster =
   (variables: MysteryDungeonMasterVariables, customTemplate?: string) => {
     const validatedVariables =
       mysteryDungeonMasterVariablesSchema.parse(variables);
-    validatedVariables.timeline = [...validatedVariables.timeline];
 
     const prompt = replacer({
       template:
         customTemplate ||
         `
-You are the dungeon master (DM) for a whodunnit role-playing game. The player will send actions they want to
-take in the world, and you will describe what happens when those actions are taken. Then you will write a brief but complete summary of the action and the description, at the end of the "- dm:" line, delineated by "SUM:"
+You are the dungeon master (DM) for a whodunnit role-playing game. The player will add actions they want to
+take in the world to the timeline, and you will describe what happens when those actions are taken. Then you will write a brief but complete summary of the action and the description, at the end of the "- dm:" line, delineated by "SUM:"
 Never say no to the player, your job is only to describe what happens next. Never make decisions or take actions for the player in your descriptions.
 Your descriptions should be complete, informative, interesting and well written.
 
 As the player explores, they will slowly come across clues that will help them piece together the who, how, and why of the crime.
 Never give information to the player that they didn't find directly by exploring the world and asking witnesses.
 
-- player: I enter the room
-- dm: You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles to himself. SUM: The player walks into the room. It is gray, stone, and smells like dirt. It contains three beds, two sleeping bandits, torches.
-
-- player: What do I see?
-- dm: To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors. It smells like smoke. SUM: The player sees two small wooden doors to their left, and large steel double doors at the end of the hall. It smells like smoke.
-
-End sample actions and responses
-
 This game takes place in a world called {worldName}.
 World description: {worldDescription}
 This is the crime that the player will be trying to solve: {crime}
 This is the brief of the crime that the player can see: {brief}
-If the timeline is empty, the DM's first response should be a copy of crime's "brief".
+
+Start sample timeline entries:
+- player: I enter the room
+- dm: You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles to himself. SUM: The player walks into the room. It is gray, stone, and smells like dirt. It contains three beds, two sleeping bandits, torches.
+- player: What do I see?
+- dm: To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors. It smells like smoke. SUM: The player sees two small wooden doors to their left, and large steel double doors at the end of the hall. It smells like smoke.
+End sample timeline entries
+
+The DM's first timeline entry should introduce the world, and the "brief" to the player.
 
 Timeline:
 [timeline]
 {action}
-- dm:
 `,
       variables: validatedVariables,
       canShorten: "timeline",
+      endText: "\n- dm:",
     });
 
+    console.log(prompt);
     console.log("Mystery Dungeon Master Prompt Length:", prompt.length);
 
     return handlers.completion(prompt);
@@ -66,7 +68,7 @@ const exploreDungeonMasterVariablesSchema = z.object({
   worldName: z.string(),
   worldDescription: z.string(),
   timeline: z.array(z.string()),
-  action: z.string().transform((a) => `- player: ${a}`),
+  action: z.string().transform((a) => (a ? `- player: ${a}` : a)),
 });
 
 type ExploreDungeonMasterVariables = z.infer<
@@ -83,12 +85,16 @@ export const createExploreDungeonMaster =
       template:
         customTemplate ||
         `
-You are the dungeon master (DM) for a role-playing game. The player will send actions they want to take in the world, 
-and you will describe what happens when those actions are taken. Then you will write a brief but complete summary of the action
-and the description, at the end of the "- dm:" line, delineated by "SUM:". Never say no to the player, your job is only to describe what happens next. 
+You are the dungeon master (DM) for a role-playing game. The player will add actions they want to
+take in the world to the timeline, and you will describe what happens when those actions are taken. 
+Your description should be detailed but you should include a short summary of the description at the end of the "- dm:" line, delineated by "SUM:". 
+Never say no to the player, your job is only to describe what happens next. 
 Your descriptions should be complete, informative, interesting and well written. 
 The player can also ask you questions about what they see in the world, and you should give full descriptions of what their character would be seeing or experiencing.
 You should not ask the player any questions.
+
+This particular game takes place in a world called {worldName}.
+{worldName} is described like "{worldDescription}".
 
 Sample actions and responses:
 
@@ -103,18 +109,15 @@ Sample actions and responses:
 
 End sample actions and responses
 
-This particular game takes place in a world called {worldName}.
-{worldName} is described like "{worldDescription}".
-
-The first response should be a brief introduction to the world, setting the stage for the player’s first action.
+The DM's first timeline entry should be a detailed introduction to the world, interesting enough for the player to want to take action in.
 Remember, you should not ask the player any questions, you just describe what occurs as a result of their actions.
 
+Timeline:
 [timeline]
-{action}
-- dm:
-`,
+{action}`,
       variables: validatedVariables,
       canShorten: "timeline",
+      endText: "\n- dm:",
     });
 
     console.log("Explore Dungeon Master Prompt Length:", prompt.length);
@@ -127,7 +130,7 @@ const evaluatorVariablesSchema = z.object({
   worldDescription: z.string(),
   timeline: z.array(z.string()).transform((timeline) => {
     if (!timeline.length) {
-      return ["DM:"];
+      return [];
     }
 
     return timeline;
@@ -158,6 +161,9 @@ special powers of any kind.
 You can allow the player to do absurd, illegal, unexpected, inexplicable or violent things
 as long as it is within the realm of physics to perform.
 
+The player is in a place called {worldName}.
+This is a description of {worldName}: {worldDescription}
+
 Example output:
 
 Action: I fly towards the far end of the building
@@ -183,13 +189,13 @@ Evaluation: Valid.
 
 End Example output
 
-The player is in a place called {worldName}.
-This is a description of {worldName}:
-{worldDescription}
-
-This is a timeline of what has happened to the player:
+This is a timeline of events that have happened in the game so far:
 
 [timeline]
+
+End timeline
+
+Now, perform your evaluation based on the following action:
 
 Action: {action}
 Evaluation:

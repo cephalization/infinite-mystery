@@ -5,8 +5,6 @@ import { z } from "zod";
 import {
   dmEventSchema,
   evaluatorEventSchema,
-  eventSchema,
-  filterEventsByType,
   makeTimelineFromEvents,
   playerEventSchema,
   summaryEventSchema,
@@ -18,6 +16,7 @@ import {
   getMysteryEventSessionById,
   initializeMysteryEventSession,
 } from "~/server/database/eventSession.server";
+import { getEventsByMysteryId } from "~/server/database/event.server";
 
 export const action = async ({ request }: ActionArgs) => {
   try {
@@ -36,6 +35,7 @@ export const action = async ({ request }: ActionArgs) => {
       id: mysterySessionId,
     });
     invariant(mysterySession !== null);
+    const events = await getEventsByMysteryId(mysterySessionId);
 
     const willGenerateBriefing = !playerInput && !mysterySession.initialized;
 
@@ -57,9 +57,7 @@ export const action = async ({ request }: ActionArgs) => {
     }
 
     const { World: world } = mystery;
-    const timeline = makeTimelineFromEvents(
-      filterEventsByType(mysterySession.Event, eventSchema)
-    );
+    const timeline = makeTimelineFromEvents(events);
 
     if (timeline.length && realismMode) {
       const evaluation = await aiClient.agents.evaluator({

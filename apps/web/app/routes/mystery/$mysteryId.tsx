@@ -127,8 +127,13 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     const user = await authenticator.isAuthenticated(request);
     const mysteryId = z.coerce.number().parse(params.mysteryId);
     const mystery = await getMysteryById(mysteryId);
+    invariant(mystery !== null);
+
     let events: AnyEventSchema[] = [];
     let initialized = false;
+
+    // Authenticated users will do event parsing with the session backed endpoint
+    // and db
     if (user) {
       const eventSession = await getEventSessionByMysteryId({
         userId: user.id,
@@ -149,7 +154,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
       initialized = eventSession.initialized;
     }
-    invariant(mystery !== null);
+
     return json({
       mystery,
       events,

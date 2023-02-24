@@ -100,7 +100,7 @@ export const filterEventsByType = <S extends z.ZodTypeAny>(
  * @param events - array of events to send to AI
  * @returns filtered events, mapped into string representation
  */
-export const makeTimelineFromEvents = (events: EventSchema[]) =>
+export const makeTimelineFromEvents = (events: unknown[]) =>
   filterEventsByType(events, processableSchema).map((e) =>
-    `${e.content}`.trim()
+    `${e.type}: ${e.content}`.trim()
   );
