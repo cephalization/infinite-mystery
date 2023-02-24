@@ -82,6 +82,8 @@ model MysteryEventSession {
 
 model Event {
   id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   type          String
   content       String
   // Used exclusively by player events

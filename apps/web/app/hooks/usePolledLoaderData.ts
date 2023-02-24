@@ -44,22 +44,27 @@ export const usePolledLoaderData = <T extends LoaderFunction = LoaderFunction>(
     }
 
     const intervalId = setInterval(() => {
-      if (document.visibilityState === "visible" && fetcher.state === "idle") {
+      console.log(fetcher.state);
+      if (fetcher.state === "idle") {
+        console.log("polling", href);
         fetcher.load(href);
       }
     }, interval);
+    console.log("starting interval", intervalId);
 
     return () => {
+      console.log("clearing interval", intervalId);
       clearInterval(intervalId);
     };
     // fetcher is not stable...
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [willPoll, interval]);
+  }, [willPoll, interval, href]);
 
   // When the fetcher comes back with new data,
   // update our `data` state.
   useEffect(() => {
     if (fetcher.data) {
+      console.log("updating with fetcher data", fetcher.data);
       setData(fetcher.data);
     }
   }, [fetcher.data]);

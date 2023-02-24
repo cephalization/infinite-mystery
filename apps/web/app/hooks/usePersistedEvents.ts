@@ -9,17 +9,17 @@ import type { AnyEventSchema, PlayerEventSchema } from "~/events";
  * @param persistedEvents - new array of events, like from actionData after a form submission
  */
 export const usePersistedEvents = (
-  initialEvents: AnyEventSchema[],
-  persistedEvents: AnyEventSchema[]
+  initialEvents: AnyEventSchema[]
+  // persistedEvents: AnyEventSchema[]
 ) => {
   const [events, setEvents] = useState(initialEvents);
 
   // Load new events into local state when received via an action
   useEffect(() => {
-    if (persistedEvents.length) {
-      setEvents(persistedEvents);
+    if (initialEvents.length) {
+      setEvents(initialEvents);
     }
-  }, [persistedEvents]);
+  }, [initialEvents]);
 
   /**
    * Given a partial player event, add it to local state

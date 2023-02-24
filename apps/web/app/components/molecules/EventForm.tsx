@@ -10,7 +10,7 @@ type EventFormProps = {
   events?: AnyEventSchema[];
   addOptimisticEvent?: (evt: Omit<PlayerEventSchema, "id">) => void;
   className?: string;
-  intializeEvents: boolean;
+  intializeEvents?: boolean;
 };
 
 export const EventForm = ({
@@ -25,15 +25,15 @@ export const EventForm = ({
   const submit = useSubmit();
 
   // Submit an empty player action if there are no events yet
-  useEffect(() => {
-    if (!events.length && intializeEvents) {
-      submit(formRef.current, {
-        replace: true,
-        method: "post",
-        preventScrollReset: true,
-      });
-    }
-  }, [submit, events, intializeEvents]);
+  // useEffect(() => {
+  //   if (!events.length && intializeEvents) {
+  //     submit(formRef.current, {
+  //       replace: true,
+  //       method: "post",
+  //       preventScrollReset: true,
+  //     });
+  //   }
+  // }, [submit, events, intializeEvents]);
 
   /**
    * Handle form submissions

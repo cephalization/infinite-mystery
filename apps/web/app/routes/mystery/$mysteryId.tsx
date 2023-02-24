@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useNavigation, useTransition } from "@remix-run/react";
+import { useActionData, useTransition } from "@remix-run/react";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
 import invariant from "tiny-invariant";
 import { z } from "zod";
@@ -14,6 +14,8 @@ import { MysteryHeader } from "~/components/molecules/MysteryHeader";
 import { EventForm } from "~/components/molecules/EventForm";
 import { usePersistedEvents } from "~/hooks/usePersistedEvents";
 import { usePolledLoaderData } from "~/hooks/usePolledLoaderData";
+import { useActiveRoute } from "~/hooks/useActiveRoute";
+import { getEventsByMysteryId } from "~/server/database/event.server";
 
 // const fetchEvents = async ({
 //   events,
@@ -78,6 +80,7 @@ const persistEvents = async ({
 };
 
 export const action = async ({ request, params }: ActionArgs) => {
+  console.log("action called");
   try {
     const form = await request.formData();
     const input = z.coerce.string().parse(form.get("action-input"));
@@ -119,6 +122,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 };
 
 export const loader = async ({ params, request }: LoaderArgs) => {
+  console.log("loader called");
   try {
     const user = await authenticator.isAuthenticated(request);
     const mysteryId = z.coerce.number().parse(params.mysteryId);
@@ -130,8 +134,19 @@ export const loader = async ({ params, request }: LoaderArgs) => {
         userId: user.id,
         mysteryId,
       });
+      const eventsBySession = await getEventsByMysteryId(eventSession.id);
 
-      events = filterEventsByType(eventSession.Event, eventSchema);
+      events = filterEventsByType(eventsBySession, eventSchema);
+
+      if (!events.length && !eventSession.initialized) {
+        console.log("Generating brief");
+        persistEvents({
+          playerInput: "",
+          mysteryId,
+          mysterySessionId: eventSession.id,
+        });
+      }
+
       initialized = eventSession.initialized;
     }
     invariant(mystery !== null);
@@ -146,19 +161,14 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 };
 
 export default function ExploremysteryById() {
-  const navigation = useNavigation();
-  const {
-    mystery,
-    events: initialEvents,
-    initialized,
-  } = usePolledLoaderData<typeof loader>(
-    navigation.location?.pathname ?? "",
+  const { pathname } = useActiveRoute();
+  const { mystery, events: initialEvents } = usePolledLoaderData<typeof loader>(
+    pathname,
     (d) => !d.events.length
   );
   const actionData = useActionData<typeof action>();
   const { events, handleOptimisticEvent } = usePersistedEvents(
-    initialEvents,
-    actionData?.events ?? []
+    actionData?.events ?? initialEvents ?? []
   );
   const transition = useTransition();
 
@@ -177,7 +187,6 @@ export default function ExploremysteryById() {
         addOptimisticEvent={handleOptimisticEvent}
         events={events}
         loading={loading}
-        intializeEvents={!initialized}
       />
     </VerticalEdges>
   );
