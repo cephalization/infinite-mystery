@@ -36,7 +36,7 @@ const fetchEvents = async ({
   realismMode?: boolean;
 }) => {
   try {
-    const response = await fetch(`/mystery/${mysteryId}/action`, {
+    const response = await fetch(`/api/mystery/${mysteryId}/generate-events`, {
       body: JSON.stringify({
         events,
         mysteryId,

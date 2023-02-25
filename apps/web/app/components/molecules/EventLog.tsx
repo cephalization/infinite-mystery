@@ -85,7 +85,7 @@ export const EventLog = ({ events = [], loading }: EventLogProps) => {
     <Stippled
       className={clsx(
         "flex overflow-y-auto flex-col-reverse",
-        "h-72 max-h-72",
+        "basis-72 max-h-72",
         "md:h-96 md:max-h-96",
         "scroll-smooth"
       )}

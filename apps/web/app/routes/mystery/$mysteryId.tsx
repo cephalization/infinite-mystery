@@ -17,31 +17,6 @@ import { usePolledLoaderData } from "~/hooks/usePolledLoaderData";
 import { useActiveRoute } from "~/hooks/useActiveRoute";
 import { getEventsByMysteryId } from "~/server/database/event.server";
 
-// const fetchEvents = async ({
-//   events,
-//   mysteryId,
-//   realismMode,
-// }: {
-//   events: AnyEventSchema[];
-//   mysteryId: number | string;
-//   realismMode?: boolean;
-// }) => {
-//   try {
-//     const response = await fetch(`/mystery/${mysteryId}/action`, {
-//       body: JSON.stringify({
-//         events,
-//         mysteryId,
-//         realismMode,
-//       }),
-//       method: "post",
-//     });
-//     const json = await response.json();
-//     return json.events;
-//   } catch (e) {
-//     console.error(e);
-//   }
-// };
-
 const persistEvents = async ({
   playerInput,
   mysteryId,
@@ -55,7 +30,7 @@ const persistEvents = async ({
 }) => {
   try {
     const response = await fetch(
-      `${serverConfig.WEB_URL}/mystery/${mysteryId}/session`,
+      `${serverConfig.WEB_URL}/api/mystery/${mysteryId}/persist-events`,
       {
         body: JSON.stringify({
           playerInput,
@@ -191,6 +166,7 @@ export default function ExploremysteryById() {
         worldName={world.name}
       />
       <EventForm
+        resetUrl={`/api/mystery/${mystery.id}/reset-session`}
         addOptimisticEvent={handleOptimisticEvent}
         events={events}
         loading={loading}

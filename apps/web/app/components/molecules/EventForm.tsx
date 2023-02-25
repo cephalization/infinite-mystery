@@ -1,7 +1,9 @@
-import { Form, useSubmit } from "@remix-run/react";
+import { Form, useFetcher, useNavigate, useSubmit } from "@remix-run/react";
+import clsx from "clsx";
 import React, { useRef } from "react";
 import { z } from "zod";
 import type { AnyEventSchema, PlayerEventSchema } from "~/events";
+import { ResetButton } from "../atoms/ResetButton";
 import { ActionInput } from "./ActionInput";
 import { EventLog } from "./EventLog";
 
@@ -11,6 +13,7 @@ type EventFormProps = {
   addOptimisticEvent?: (evt: Omit<PlayerEventSchema, "id">) => void;
   className?: string;
   onSubmit?: (e: HTMLFormElement) => void;
+  resetUrl?: string;
 };
 
 export const EventForm = ({
@@ -19,6 +22,7 @@ export const EventForm = ({
   events = [],
   className,
   onSubmit,
+  resetUrl,
 }: EventFormProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -69,7 +73,19 @@ export const EventForm = ({
   };
 
   return (
-    <section className={className}>
+    <section className={clsx("flex flex-col gap-2", className)}>
+      {!!resetUrl && (
+        <Form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await fetch(resetUrl, { method: "post" });
+            location.reload();
+          }}
+          className="w-full flex justify-end flex-shrink"
+        >
+          <ResetButton disabled={loading} />
+        </Form>
+      )}
       <EventLog events={events} loading={loading} />
       <Form onSubmit={handleSubmit} ref={formRef}>
         <ActionInput loading={loading} disabled={loading} ref={inputRef} />
