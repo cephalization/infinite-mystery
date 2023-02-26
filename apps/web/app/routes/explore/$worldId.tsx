@@ -84,7 +84,7 @@ export default function ExploreWorldById() {
         </h1>
         <h3 className="text-neutral-content">{world.description}</h3>
       </section>
-      <section>
+      <section className="flex flex-col">
         <EventLog events={events} loading={loading} />
         <form
           onSubmit={async (e) => {
