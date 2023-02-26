@@ -10,7 +10,8 @@ import { MysteryHeader } from "~/components/molecules/MysteryHeader";
 import type { AnyEventSchema } from "~/events";
 import { playerEventSchema } from "~/events";
 import { eventSchema, filterEventsByType } from "~/events";
-import { usePersistedEvents } from "~/hooks/usePersistedEvents";
+import { useEvents } from "~/hooks/useEvents";
+import { usePersistedState } from "~/hooks/usePersistedState";
 import { getMysteryById } from "~/server/database/mystery.server";
 
 export const loader = async ({ params }: LoaderArgs) => {
@@ -53,11 +54,12 @@ const fetchEvents = async ({
 };
 
 export default function ExploremysteryByIdLocal() {
-  const initialized = useRef(false);
   const [fetchLoading, setLoading] = useState(false);
   const { mystery } = useLoaderData<typeof loader>();
   const [localEvents, setLocalEvents] = useState<AnyEventSchema[]>([]);
-  const { events, handleOptimisticEvent } = usePersistedEvents(localEvents);
+  const { events, handleOptimisticEvent } = useEvents(localEvents);
+  usePersistedState(`mystery/${mystery.id}/events`, events);
+  const initialized = useRef(events.length > 0);
   const transition = useTransition();
 
   const loading =
@@ -127,6 +129,7 @@ export default function ExploremysteryByIdLocal() {
         events={events}
         loading={loading}
         onSubmit={handleSubmit}
+        saveUrl={`/api/mystery/${mystery.id}/ingest-events?redirect=/mystery/${mystery.id}/persist`}
       />
     </VerticalEdges>
   );

@@ -1,6 +1,6 @@
-type ThreeDotsProps = Partial<React.SVGProps<SVGSVGElement>>;
+import type { IconProps } from "./types";
 
-export const ThreeDots = ({ className, ...props }: ThreeDotsProps) => (
+export const ThreeDots = ({ className, ...props }: IconProps) => (
   <svg
     width={64}
     height={24}

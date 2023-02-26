@@ -20,7 +20,7 @@ export const ResetButton = ({
   return (
     <>
       <label
-        className={clsx("btn btn-sm gap-2 max-w-fit", className)}
+        className={clsx("btn gap-2 max-w-fit", className)}
         htmlFor={id}
         {...props}
       >

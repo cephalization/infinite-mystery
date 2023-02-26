@@ -1,4 +1,4 @@
-import { Form, useFetcher, useNavigate, useSubmit } from "@remix-run/react";
+import { Form, Link, useSubmit } from "@remix-run/react";
 import clsx from "clsx";
 import React, { useRef } from "react";
 import { z } from "zod";
@@ -10,19 +10,23 @@ import { EventLog } from "./EventLog";
 type EventFormProps = {
   loading?: boolean;
   events?: AnyEventSchema[];
+  eventSessionId?: number;
   addOptimisticEvent?: (evt: Omit<PlayerEventSchema, "id">) => void;
   className?: string;
   onSubmit?: (e: HTMLFormElement) => void;
   resetUrl?: string;
+  saveUrl?: string;
 };
 
 export const EventForm = ({
   loading,
   addOptimisticEvent,
   events = [],
+  eventSessionId,
   className,
   onSubmit,
   resetUrl,
+  saveUrl,
 }: EventFormProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -74,18 +78,38 @@ export const EventForm = ({
 
   return (
     <section className={clsx("flex flex-col gap-2", className)}>
-      {!!resetUrl && (
-        <Form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await fetch(resetUrl, { method: "post" });
-            location.reload();
-          }}
-          className="w-full flex justify-end flex-shrink"
-        >
-          <ResetButton disabled={loading} />
-        </Form>
-      )}
+      <div className="flex w-full gap-4 items-center flex-row-reverse">
+        {!!resetUrl && eventSessionId !== undefined && (
+          <Form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const response = await fetch(resetUrl, {
+                method: "post",
+                body: JSON.stringify({
+                  mysterySessionId: eventSessionId,
+                }),
+              });
+              const { success } = await response.json();
+
+              if (success) {
+                location.reload();
+              }
+            }}
+            className="flex min-w-fit"
+          >
+            <ResetButton disabled={loading} />
+          </Form>
+        )}
+        {!!saveUrl && (
+          <Link
+            to={saveUrl}
+            className={clsx("btn", loading && "btn-disabled")}
+            aria-disabled={loading}
+          >
+            Save
+          </Link>
+        )}
+      </div>
       <EventLog events={events} loading={loading} />
       <Form onSubmit={handleSubmit} ref={formRef}>
         <ActionInput loading={loading} disabled={loading} ref={inputRef} />

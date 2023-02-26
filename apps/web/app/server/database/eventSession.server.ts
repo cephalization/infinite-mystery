@@ -57,6 +57,9 @@ export const getEventSessionByMysteryId = async ({
     include: {
       Event: true,
     },
+    orderBy: {
+      updatedAt: "desc",
+    },
   });
 
   if (!session) {
@@ -99,6 +102,37 @@ export const addEventToMysteryEventSession = ({
           id: mysteryEventSessionId,
         },
       },
+    },
+  });
+};
+
+export const createMysteryEventSessionWithEvents = ({
+  input,
+  mysteryId,
+  userId,
+}: {
+  mysteryId: Prisma.MysteryWhereUniqueInput["id"];
+  userId: Prisma.UserWhereUniqueInput["id"];
+  input: Prisma.EventCreateManyInput[];
+}) => {
+  return prisma.mysteryEventSession.create({
+    data: {
+      User: {
+        connect: {
+          id: userId,
+        },
+      },
+      Mystery: {
+        connect: {
+          id: mysteryId,
+        },
+      },
+      Event: {
+        create: input.map(({ id: _, ...evt }) => evt),
+      },
+    },
+    include: {
+      Event: true,
     },
   });
 };

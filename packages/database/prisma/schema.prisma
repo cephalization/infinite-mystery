@@ -53,31 +53,33 @@ model World {
 }
 
 model WorldEventSession {
-  id      Int     @id @default(autoincrement())
-  Event   Event[]
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Event       Event[]
   // every event session is tied to a user
-  User    User    @relation(fields: [userId], references: [id])
-  userId  Int
+  User        User     @relation(fields: [userId], references: [id])
+  userId      Int
   // A session is created for a world
-  World   World   @relation(fields: [worldId], references: [id])
-  worldId Int
-
+  World       World    @relation(fields: [worldId], references: [id])
+  worldId     Int
   // False if a brief has never been generated for this session
-  initialized Boolean @default(false)
+  initialized Boolean  @default(false)
 }
 
 model MysteryEventSession {
-  id        Int     @id @default(autoincrement())
-  Event     Event[]
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Event       Event[]
   // every event session is tied to a user
-  User      User    @relation(fields: [userId], references: [id])
-  userId    Int
+  User        User     @relation(fields: [userId], references: [id])
+  userId      Int
   // A session is created for a mystery
-  Mystery   Mystery @relation(fields: [mysteryId], references: [id])
-  mysteryId Int
-
+  Mystery     Mystery  @relation(fields: [mysteryId], references: [id])
+  mysteryId   Int
   // False if a brief has never been generated for this session
-  initialized Boolean @default(false)
+  initialized Boolean  @default(false)
 }
 
 model Event {

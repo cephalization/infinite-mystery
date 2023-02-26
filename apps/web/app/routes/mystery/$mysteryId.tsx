@@ -12,7 +12,7 @@ import { authenticator } from "~/server/auth.server";
 import { serverConfig } from "~/server/config.server";
 import { MysteryHeader } from "~/components/molecules/MysteryHeader";
 import { EventForm } from "~/components/molecules/EventForm";
-import { usePersistedEvents } from "~/hooks/usePersistedEvents";
+import { useEvents } from "~/hooks/useEvents";
 import { usePolledLoaderData } from "~/hooks/usePolledLoaderData";
 import { useActiveRoute } from "~/hooks/useActiveRoute";
 import { getEventsByMysteryId } from "~/server/database/event.server";
@@ -106,6 +106,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
     let events: AnyEventSchema[] = [];
     let initialized = false;
+    let eventSessionId: undefined | number;
 
     // Authenticated users will do event parsing with the session backed endpoint
     // and db
@@ -128,6 +129,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
       }
 
       initialized = eventSession.initialized;
+      eventSessionId = eventSession.id;
     } else {
       return redirect(`/mystery/${mysteryId}/local`);
     }
@@ -135,6 +137,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     return json({
       mystery,
       events,
+      eventSessionId,
       initialized,
     });
   } catch (e) {
@@ -144,12 +147,13 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function ExploremysteryById() {
   const { pathname } = useActiveRoute();
-  const { mystery, events: initialEvents } = usePolledLoaderData<typeof loader>(
-    pathname,
-    (d) => !d.events.length
-  );
+  const {
+    mystery,
+    events: initialEvents,
+    eventSessionId,
+  } = usePolledLoaderData<typeof loader>(pathname, (d) => !d.events.length);
   const actionData = useActionData<typeof action>();
-  const { events, handleOptimisticEvent } = usePersistedEvents(
+  const { events, handleOptimisticEvent } = useEvents(
     actionData?.events ?? initialEvents ?? []
   );
   const transition = useTransition();
@@ -170,6 +174,7 @@ export default function ExploremysteryById() {
         addOptimisticEvent={handleOptimisticEvent}
         events={events}
         loading={loading}
+        eventSessionId={eventSessionId}
       />
     </VerticalEdges>
   );
