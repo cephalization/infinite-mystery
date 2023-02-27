@@ -27,7 +27,15 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 export const action = async ({ request }: ActionArgs) => {
+  let headers: Headers | undefined = undefined;
   try {
+    // manually get the session
+    let session = await getSession(request.headers.get("cookie"));
+    // and store the user data
+    session.unset("_redirect");
+
+    headers = new Headers({ "Set-Cookie": await commitSession(session) });
+
     const user = await authenticator.isAuthenticated(request);
     if (!user) {
       return json(
@@ -37,6 +45,7 @@ export const action = async ({ request }: ActionArgs) => {
         },
         {
           status: 401,
+          headers,
         }
       );
     }
@@ -56,15 +65,18 @@ export const action = async ({ request }: ActionArgs) => {
       userId: user.id,
     });
 
-    return json({
-      success: true,
-      error: null,
-    });
+    return json(
+      {
+        success: true,
+        error: null,
+      },
+      { headers }
+    );
   } catch (e) {
     console.error(e);
     return json(
       { error: "Could not ingest events", detail: e, success: false },
-      { status: 400 }
+      { status: 400, headers }
     );
   }
 };
