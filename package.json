@@ -16,6 +16,7 @@
     "test:w": "turbo run test:w",
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "ci": "turbo run lint test build",
     "fix-deps": "manypkg fix",
     "postinstall": "manypkg check",
     "db-init": "prisma migrate dev --name init",
