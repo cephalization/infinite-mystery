@@ -36,12 +36,20 @@
     "db:seed": {
       "cache": false
     },
-    "test": {},
+    "test": {
+      "cache": false,
+      "dependsOn": [
+        "^build"
+      ]
+    },
     "test:w": {
       "persistent": true
     },
     "lint": {
-      "cache": false
+      "cache": false,
+      "dependsOn": [
+        "^build"
+      ]
     },
     "clean": {
       "cache": false

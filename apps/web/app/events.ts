@@ -59,14 +59,11 @@ export type EvaluatorEventSchema = z.infer<typeof evaluatorEventSchema>;
 /**
  * Events that should be re-processed back into the AI loop
  *
- * Valid player events and all DM events should be processable
+ * Only summary events should be processable
  * Evaluator events, invalid player events should not be
  */
 export const processableSchema = z.discriminatedUnion("type", [
   summaryEventSchema,
-  // playerEventSchema.merge(
-  //   z.object({ invalidAction: z.literal(false).optional() })
-  // ),
 ]);
 
 export type ProcessableSchema = z.infer<typeof processableSchema>;
