@@ -58,7 +58,6 @@ Timeline:
       endText: "\n- dm:",
     });
 
-    console.log(prompt);
     console.log("Mystery Dungeon Master Prompt Length:", prompt.length);
 
     return handlers.completion(prompt);

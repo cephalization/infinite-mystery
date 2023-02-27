@@ -56,7 +56,6 @@ const persistEvents = async ({
 };
 
 export const action = async ({ request, params }: ActionArgs) => {
-  console.log("action called");
   try {
     const form = await request.formData();
     const input = z.coerce.string().parse(form.get("action-input"));
@@ -98,7 +97,6 @@ export const action = async ({ request, params }: ActionArgs) => {
 };
 
 export const loader = async ({ params, request }: LoaderArgs) => {
-  console.log("loader called");
   try {
     const user = await authenticator.isAuthenticated(request);
     const mysteryId = z.coerce.number().parse(params.mysteryId);
@@ -121,7 +119,6 @@ export const loader = async ({ params, request }: LoaderArgs) => {
       events = filterEventsByType(eventsBySession, eventSchema);
 
       if (!events.length && !eventSession.initialized) {
-        console.log("Generating brief");
         persistEvents({
           playerInput: "",
           mysteryId,
