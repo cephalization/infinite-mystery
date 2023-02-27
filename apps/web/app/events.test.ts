@@ -22,8 +22,9 @@ const testEvents: (
   { id: 0, type: "player", content: "hi" },
   { id: 1, type: "player", content: "bye", invalidAction: true },
   { id: 2, type: "dm", content: "hi" },
-  { id: 3, type: "evaluator", content: "hi" },
+  { id: 3, type: "summary", content: "hi (summary)" },
   { id: 4, type: "evaluator", content: "hi" },
+  { id: 5, type: "evaluator", content: "hi" },
 ];
 
 test("filterEventsByType", () => {
@@ -41,5 +42,5 @@ test("filterEventsByType", () => {
   expect(evaluatorEvents.length).toBe(2);
 
   const processableEvents = filterEventsByType(testEvents, processableSchema);
-  expect(processableEvents.length).toBe(2);
+  expect(processableEvents.length).toBe(1);
 });
