@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import { z } from "zod";
 import type { AnyEventSchema, PlayerEventSchema } from "~/events";
 import { ResetButton } from "../atoms/ResetButton";
+import { ArrowUpOnSquareStack } from "../icons/ArrowUpOnSquareStack";
 import { ActionInput } from "./ActionInput";
 import { EventLog } from "./EventLog";
 
@@ -101,13 +102,19 @@ export const EventForm = ({
           </Form>
         )}
         {!!saveUrl && (
-          <Link
-            to={saveUrl}
-            className={clsx("btn", loading && "btn-disabled")}
-            aria-disabled={loading}
+          <div
+            className="tooltip tooltip-left max-lg:tooltip-open text-left"
+            data-tip="Click to save your progress, and connect it to an account"
           >
-            Save
-          </Link>
+            <Link
+              to={saveUrl}
+              className={clsx("btn gap-2", loading && "btn-disabled")}
+              aria-disabled={loading}
+            >
+              <ArrowUpOnSquareStack />
+              Save
+            </Link>
+          </div>
         )}
       </div>
       <EventLog events={events} loading={loading} />
