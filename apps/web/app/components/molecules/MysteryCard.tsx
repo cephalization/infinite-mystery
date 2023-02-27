@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 import clsx from "clsx";
 import Balancer from "react-wrap-balancer";
+import { makeImgUrl } from "~/utils/makeImgUrl";
 
 const DEFAULT_WORLD_IMG = "/images/undefined-mystery-1.jpeg";
 
@@ -22,7 +23,7 @@ export const MysteryCard = ({
     <div className="card card-compact w-full sm:w-64 bg-neutral text-neutral-content shadow-2xl">
       <figure className="sm:pt-6">
         <img
-          src={imageSrc}
+          src={makeImgUrl(imageSrc)}
           alt="Mystery to Enter"
           className={clsx(
             "rounded-xl rounded-bl-none rounded-br-none",

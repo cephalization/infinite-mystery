@@ -1,10 +1,12 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData, useTransition } from "@remix-run/react";
+import clsx from "clsx";
 import { FormText, FormTextArea } from "~/components/atoms/FormInput";
 import { Route } from "~/components/layouts/Route";
 import { Scroller } from "~/components/layouts/Scroller";
+import { aiClient } from "~/server/ai.server";
 import { authenticator } from "~/server/auth.server";
 import { createForm, createFormSchema } from "~/server/database/create.server";
 
@@ -22,8 +24,23 @@ export const action = async ({ request }: ActionArgs) => {
       failureRedirect: "/login",
     });
     const form = createFormSchema.parse(await request.formData());
-
-    await createForm(user.id, form);
+    const worldImage = aiClient.agents.worldImageGenerator({
+      worldName: form.worldName,
+      worldDescription: form.worldDescription,
+    });
+    const mysteryImage = aiClient.agents.mysteryImageGenerator({
+      mysteryTitle: form.mysteryTitle,
+      crime: form.mysteryCrime,
+      worldDescription: form.worldDescription,
+      worldName: form.worldName,
+    });
+    const images = (await Promise.allSettled([worldImage, mysteryImage]))
+      .map((s) => (s.status === "fulfilled" ? s.value : undefined))
+      .filter((s) => s);
+    await createForm(user.id, form, {
+      world: images[0] ?? undefined,
+      mystery: images[1] ?? undefined,
+    });
 
     return redirect("/explore");
   } catch (e) {
@@ -34,12 +51,18 @@ export const action = async ({ request }: ActionArgs) => {
 
 const Create = () => {
   const { user } = useLoaderData<typeof loader>();
+  const transition = useTransition();
+
+  const loading = transition.state === "submitting";
 
   return (
     <Route user={user}>
       <Scroller className="mt-8 pb-8">
-        <form className="space-y-6" action="#" method="POST">
-          <div className="bg-neutral px-4 py-5 shadow sm:rounded-lg sm:p-6">
+        <Form className="space-y-6" method="post">
+          <fieldset
+            disabled={loading}
+            className="bg-neutral px-4 py-5 shadow sm:rounded-lg sm:p-6"
+          >
             <div className="md:grid md:grid-cols-3 md:gap-6">
               <div className="md:col-span-1">
                 <h3 className="text-lg font-medium leading-6 text-primary">
@@ -67,9 +90,12 @@ const Create = () => {
                 />
               </div>
             </div>
-          </div>
+          </fieldset>
 
-          <div className="bg-neutral px-4 py-5 shadow sm:rounded-lg sm:p-6">
+          <fieldset
+            disabled={loading}
+            className="bg-neutral px-4 py-5 shadow sm:rounded-lg sm:p-6"
+          >
             <div className="md:grid md:grid-cols-3 md:gap-6">
               <div className="md:col-span-1">
                 <h3 className="text-lg font-medium leading-6 text-primary">
@@ -105,17 +131,21 @@ const Create = () => {
                 />
               </div>
             </div>
-          </div>
+          </fieldset>
 
           <div className="flex justify-end gap-4">
-            <button type="button" className="btn">
+            <Link to="/explore" className="btn" aria-disabled={loading}>
               Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
+            </Link>
+            <button
+              type="submit"
+              className={clsx("btn btn-primary", loading && "loading")}
+              disabled={loading}
+            >
               Save
             </button>
           </div>
-        </form>
+        </Form>
       </Scroller>
     </Route>
   );
