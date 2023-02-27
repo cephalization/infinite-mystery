@@ -11,11 +11,10 @@ import { EventLog } from "./EventLog";
 type EventFormProps = {
   loading?: boolean;
   events?: AnyEventSchema[];
-  eventSessionId?: number;
   addOptimisticEvent?: (evt: Omit<PlayerEventSchema, "id">) => void;
   className?: string;
   onSubmit?: (e: HTMLFormElement) => void;
-  resetUrl?: string;
+  onReset?: () => void;
   saveUrl?: string;
 };
 
@@ -23,10 +22,9 @@ export const EventForm = ({
   loading,
   addOptimisticEvent,
   events = [],
-  eventSessionId,
   className,
   onSubmit,
-  resetUrl,
+  onReset,
   saveUrl,
 }: EventFormProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -80,21 +78,11 @@ export const EventForm = ({
   return (
     <section className={clsx("flex flex-col gap-2", className)}>
       <div className="flex w-full gap-4 items-center flex-row-reverse">
-        {!!resetUrl && eventSessionId !== undefined && (
+        {!!onReset && (
           <Form
-            onSubmit={async (e) => {
+            onSubmit={(e) => {
               e.preventDefault();
-              const response = await fetch(resetUrl, {
-                method: "post",
-                body: JSON.stringify({
-                  mysterySessionId: eventSessionId,
-                }),
-              });
-              const { success } = await response.json();
-
-              if (success) {
-                location.reload();
-              }
+              onReset();
             }}
             className="flex min-w-fit"
           >
@@ -103,7 +91,7 @@ export const EventForm = ({
         )}
         {!!saveUrl && (
           <div
-            className="tooltip tooltip-left max-lg:tooltip-open text-left"
+            className="tooltip tooltip-left lg:tooltip-open text-left"
             data-tip="Click to save your progress, and connect it to an account"
           >
             <Link

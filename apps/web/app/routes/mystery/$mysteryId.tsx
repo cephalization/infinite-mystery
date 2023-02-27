@@ -16,6 +16,7 @@ import { useEvents } from "~/hooks/useEvents";
 import { usePolledLoaderData } from "~/hooks/usePolledLoaderData";
 import { useActiveRoute } from "~/hooks/useActiveRoute";
 import { getEventsByMysteryId } from "~/server/database/event.server";
+import { useCallback } from "react";
 
 const persistEvents = async ({
   playerInput,
@@ -161,6 +162,22 @@ export default function ExploremysteryById() {
   const loading = transition.state === "submitting" || !events.length;
   const { World: world } = mystery;
 
+  const mysteryId = mystery.id;
+  const handleReset = useCallback(async () => {
+    const response = await fetch(`/api/mystery/${mysteryId}/reset-session`, {
+      method: "post",
+      body: JSON.stringify({
+        mysterySessionId: eventSessionId,
+      }),
+    });
+
+    const { success } = await response.json();
+
+    if (success) {
+      location.reload();
+    }
+  }, [eventSessionId, mysteryId]);
+
   return (
     <VerticalEdges>
       <MysteryHeader
@@ -170,11 +187,10 @@ export default function ExploremysteryById() {
         worldName={world.name}
       />
       <EventForm
-        resetUrl={`/api/mystery/${mystery.id}/reset-session`}
+        onReset={handleReset}
         addOptimisticEvent={handleOptimisticEvent}
         events={events}
         loading={loading}
-        eventSessionId={eventSessionId}
       />
     </VerticalEdges>
   );

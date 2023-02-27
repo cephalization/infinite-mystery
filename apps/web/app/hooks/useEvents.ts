@@ -26,7 +26,9 @@ export const useEvents = (initialEvents: AnyEventSchema[]) => {
    */
   const handleOptimisticEvent = useCallback(
     (newEvt: Omit<PlayerEventSchema, "id">) => {
-      setEvents((evts) => [...evts, { ...newEvt, id: -1 }]);
+      const newEvent = { ...newEvt, id: -1 };
+      setEvents((evts) => [...evts, newEvent]);
+      return newEvent;
     },
     []
   );

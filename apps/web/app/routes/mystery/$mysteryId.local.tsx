@@ -1,7 +1,8 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData, useTransition } from "@remix-run/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocalStorage } from "react-use";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
@@ -11,7 +12,6 @@ import type { AnyEventSchema } from "~/events";
 import { playerEventSchema } from "~/events";
 import { eventSchema, filterEventsByType } from "~/events";
 import { useEvents } from "~/hooks/useEvents";
-import { usePersistedState } from "~/hooks/usePersistedState";
 import { getMysteryById } from "~/server/database/mystery.server";
 
 export const loader = async ({ params }: LoaderArgs) => {
@@ -56,9 +56,14 @@ const fetchEvents = async ({
 export default function ExploremysteryByIdLocal() {
   const [fetchLoading, setLoading] = useState(false);
   const { mystery } = useLoaderData<typeof loader>();
-  const [localEvents, setLocalEvents] = useState<AnyEventSchema[]>([]);
-  const { events, handleOptimisticEvent } = useEvents(localEvents);
-  usePersistedState(`mystery/${mystery.id}/events`, events);
+  const localStorageKey = `mystery/${mystery.id}/events`;
+  // pull in events from localStorage, these are not rendered directly to prevent hydration errors
+  const [localEvents, setLocalEvents] = useLocalStorage<AnyEventSchema[]>(
+    localStorageKey,
+    []
+  );
+  // events to render, will initialize as empty on server and client
+  const { events, handleOptimisticEvent, setEvents } = useEvents([]);
   const initialized = useRef(events.length > 0);
   const transition = useTransition();
 
@@ -66,24 +71,38 @@ export default function ExploremysteryByIdLocal() {
     transition.state === "submitting" || !events.length || fetchLoading;
   const { World: world } = mystery;
 
+  const handleEventChange = useCallback(
+    (e: AnyEventSchema[]) => {
+      setEvents(e);
+      setLocalEvents(e);
+    },
+    [setEvents, setLocalEvents]
+  );
+
   const mysteryId = mystery.id;
   useEffect(() => {
     const f = async () => {
       initialized.current = true;
       setLoading(true);
-      const initialEvents = await fetchEvents({
-        events: [],
-        mysteryId,
-      });
-      setLoading(false);
-      if (Array.isArray(initialEvents)) {
-        setLocalEvents(initialEvents);
+      // set localStorage events after mount
+      if (localEvents && localEvents.length) {
+        handleEventChange(localEvents);
+      } else {
+        // if no localStorage events are preset, fetch em from the api
+        const initialEvents = await fetchEvents({
+          events: [],
+          mysteryId,
+        });
+        if (Array.isArray(initialEvents)) {
+          handleEventChange(initialEvents);
+        }
       }
+      setLoading(false);
     };
     if (!initialized.current) {
       f();
     }
-  }, [mysteryId]);
+  }, [mysteryId, handleEventChange, localEvents]);
 
   const handleSubmit = async (e: HTMLFormElement) => {
     setLoading(true);
@@ -107,7 +126,7 @@ export default function ExploremysteryByIdLocal() {
       });
 
       if (Array.isArray(newEvents)) {
-        setLocalEvents(newEvents);
+        handleEventChange(newEvents);
       }
     } catch (e) {
       console.error(e);
@@ -115,6 +134,12 @@ export default function ExploremysteryByIdLocal() {
       setLoading(false);
     }
   };
+
+  const handleReset = useCallback(() => {
+    setEvents([]);
+    setLocalEvents([]);
+    location.reload();
+  }, [setEvents, setLocalEvents]);
 
   return (
     <VerticalEdges>
@@ -129,6 +154,7 @@ export default function ExploremysteryByIdLocal() {
         events={events}
         loading={loading}
         onSubmit={handleSubmit}
+        onReset={handleReset}
         saveUrl={`/api/mystery/${mystery.id}/ingest-events?redirect=/mystery/${mystery.id}/persist`}
       />
     </VerticalEdges>
