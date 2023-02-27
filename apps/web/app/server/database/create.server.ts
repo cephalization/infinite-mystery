@@ -16,7 +16,11 @@ export type CreateForm = z.infer<typeof createFormSchema>;
 
 export const createForm = (
   userId: Prisma.UserWhereUniqueInput["id"],
-  form: CreateForm
+  form: CreateForm,
+  previewImgs: {
+    mystery?: string;
+    world?: string;
+  } = {}
 ) => {
   return prisma.user.update({
     where: { id: userId },
@@ -25,12 +29,14 @@ export const createForm = (
         create: {
           name: form.worldName,
           description: form.worldDescription,
+          previewImg: previewImgs.world,
           mysteries: {
             create: {
               userId,
               title: form.mysteryTitle,
               brief: form.mysteryBrief,
               crime: form.mysteryCrime,
+              previewImg: previewImgs.mystery,
             },
           },
         },

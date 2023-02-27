@@ -12,6 +12,8 @@ import {
   createExploreDungeonMaster,
   createEvaluator,
   createMysteryDungeonMaster,
+  createWorldImageGenerator,
+  createmysteryImageGenerator,
 } from "./agents";
 
 const defaultCompletionQuery: CreateCompletionRequest = {
@@ -52,6 +54,8 @@ const createAgents = (handlers: Handlers) => ({
   exploreDungeonMaster: createExploreDungeonMaster(handlers),
   mysteryDungeonMaster: createMysteryDungeonMaster(handlers),
   evaluator: createEvaluator(handlers),
+  worldImageGenerator: createWorldImageGenerator(handlers),
+  mysteryImageGenerator: createmysteryImageGenerator(handlers),
 });
 
 export const createAiClient = () => {

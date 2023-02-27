@@ -222,3 +222,128 @@ Evaluation:
 
     return output;
   };
+
+const worldImageGeneratorVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+});
+
+type WorldImageGeneratorVariables = z.infer<
+  typeof worldImageGeneratorVariablesSchema
+>;
+
+export const createWorldImageGenerator =
+  (handlers: Handlers) =>
+  async (variables: WorldImageGeneratorVariables, customTemplate?: string) => {
+    const validatedVariables =
+      worldImageGeneratorVariablesSchema.parse(variables);
+
+    const promptGeneratorPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+You are an artistic director who is making an intriguing image that will represent a particular 
+world. You will be given the name of the world, and description of the world,
+
+You will use this information to describe a unique image that should give the feeling of the world.
+Your image description should include the medium of art, the style, and a detailed description of 
+what is in the image. Use lots of evocative adjectives.
+
+This is a description of the world, called {worldName}: 
+- {worldDescription}
+
+This is your description of the image:
+`,
+      variables: validatedVariables,
+    });
+
+    console.log(
+      "World Image Prompt Generator Prompt Length:",
+      promptGeneratorPrompt.length
+    );
+
+    const promptResult = await handlers.completion(promptGeneratorPrompt);
+    const prompt = promptResult.data.choices.at(0)?.text ?? "";
+
+    console.log("World Image Generator Prompt:", prompt);
+
+    const result = await handlers.image(prompt, {
+      response_format: "b64_json",
+    });
+
+    const b64Image = result.data.data.at(0)?.b64_json;
+
+    if (!b64Image) {
+      return null;
+    }
+
+    return b64Image;
+  };
+
+const mysteryImageGeneratorVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  mysteryTitle: z.string(),
+  crime: z.string(),
+});
+
+type MysteryImageGeneratorVariables = z.infer<
+  typeof mysteryImageGeneratorVariablesSchema
+>;
+
+export const createmysteryImageGenerator =
+  (handlers: Handlers) =>
+  async (
+    variables: MysteryImageGeneratorVariables,
+    customTemplate?: string
+  ) => {
+    const validatedVariables =
+      worldImageGeneratorVariablesSchema.parse(variables);
+
+    const promptGeneratorPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+You are an artistic director who is making an intriguing image that will represent a particular 
+mystery adventure. You will be given the name of the mystery, a description of the world the mystery
+will take place in, and a description of the crime. 
+
+You will use this information to describe a unique image that should give the feeling of the crime 
+and introduce the key elements of the mystery. Your image description should include the medium of 
+art, the style, and a detailed description of what is in the image. Use lots of evocative adjectives.
+
+This is the title of the mystery: 
+- {mysteryTitle}
+
+This is a description of the world, called {worldName}, that the mystery takes place in: 
+- {worldDescription}
+
+This is a description of the crime: 
+- {crime}
+
+This is your description of the image to go with the mystery:`,
+      variables: validatedVariables,
+    });
+
+    console.log(
+      "Mystery Image Prompt Generator Prompt Length:",
+      promptGeneratorPrompt.length
+    );
+
+    const promptResult = await handlers.completion(promptGeneratorPrompt);
+    const prompt = promptResult.data.choices.at(0)?.text ?? "";
+
+    console.log("Mystery Image Generator Prompt:", prompt);
+
+    const result = await handlers.image(prompt, {
+      response_format: "b64_json",
+    });
+
+    const b64Image = result.data.data.at(0)?.b64_json;
+
+    if (!b64Image) {
+      return null;
+    }
+
+    return b64Image;
+  };
