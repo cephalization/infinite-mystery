@@ -191,6 +191,7 @@ export default function ExploremysteryById() {
         addOptimisticEvent={handleOptimisticEvent}
         events={events}
         loading={loading}
+        status={loading ? null : `saved session ${eventSessionId}`}
       />
     </VerticalEdges>
   );

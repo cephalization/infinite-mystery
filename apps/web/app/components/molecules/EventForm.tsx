@@ -16,6 +16,7 @@ type EventFormProps = {
   onSubmit?: (e: HTMLFormElement) => void;
   onReset?: () => void;
   saveUrl?: string;
+  status?: React.ReactNode;
 };
 
 export const EventForm = ({
@@ -26,6 +27,7 @@ export const EventForm = ({
   onSubmit,
   onReset,
   saveUrl,
+  status,
 }: EventFormProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -104,6 +106,7 @@ export const EventForm = ({
             </Link>
           </div>
         )}
+        {status && status}
       </div>
       <EventLog events={events} loading={loading} />
       <Form onSubmit={handleSubmit} ref={formRef}>
