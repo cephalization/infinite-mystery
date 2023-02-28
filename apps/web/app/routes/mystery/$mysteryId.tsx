@@ -1,149 +1,195 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useActionData, useTransition } from "@remix-run/react";
 import { VerticalEdges } from "~/components/layouts/VerticalEdges";
-import { ActionInput } from "~/components/molecules/ActionInput";
-import { EventLog } from "~/components/molecules/EventLog";
 import invariant from "tiny-invariant";
 import { z } from "zod";
-import { useEffect, useRef, useState } from "react";
 import type { AnyEventSchema } from "~/events";
-import { playerEventSchema } from "~/events";
+import { eventSchema, filterEventsByType } from "~/events";
 import { getMysteryById } from "~/server/database/mystery.server";
+import { getEventSessionByMysteryId } from "~/server/database/eventSession.server";
+import { authenticator } from "~/server/auth.server";
+import { serverConfig } from "~/server/config.server";
+import { MysteryHeader } from "~/components/molecules/MysteryHeader";
+import { EventForm } from "~/components/molecules/EventForm";
+import { useEvents } from "~/hooks/useEvents";
+import { usePolledLoaderData } from "~/hooks/usePolledLoaderData";
+import { useActiveRoute } from "~/hooks/useActiveRoute";
+import { getEventsByMysteryId } from "~/server/database/event.server";
+import { useCallback } from "react";
 
-export const loader = async ({ params }: LoaderArgs) => {
+const persistEvents = async ({
+  playerInput,
+  mysteryId,
+  mysterySessionId,
+  realismMode,
+}: {
+  playerInput: string;
+  mysteryId: number;
+  mysterySessionId: number;
+  realismMode?: boolean;
+}) => {
   try {
+    const response = await fetch(
+      `${serverConfig.WEB_URL}/api/mystery/${mysteryId}/persist-events`,
+      {
+        body: JSON.stringify({
+          playerInput,
+          mysteryId,
+          mysterySessionId,
+          realismMode,
+        }),
+        method: "post",
+      }
+    );
+    const json = await response.json();
+
+    if (!json.success) {
+      throw new Error(json.error);
+    }
+
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+};
+
+export const action = async ({ request, params }: ActionArgs) => {
+  try {
+    const form = await request.formData();
+    const input = z.coerce.string().parse(form.get("action-input"));
+    const realismMode = z.coerce.boolean().parse(form.get("realism-mode"));
+
+    const user = await authenticator.isAuthenticated(request);
+    invariant(user !== null);
+    const mysteryId = z.coerce.number().parse(params.mysteryId);
+    invariant(mysteryId !== null);
+    const eventSession = await getEventSessionByMysteryId({
+      userId: user.id,
+      mysteryId,
+    });
+    invariant(eventSession !== null);
+
+    const success = await persistEvents({
+      playerInput: input,
+      mysteryId,
+      mysterySessionId: eventSession.id,
+      realismMode,
+    });
+
+    if (!success) {
+      throw new Error("Could not persist events from action");
+    }
+
+    const newEvents = await getEventSessionByMysteryId({
+      userId: user.id,
+      mysteryId,
+    });
+    invariant(newEvents !== null);
+    const events = filterEventsByType(newEvents.Event, eventSchema);
+
+    return json({ events });
+  } catch (e) {
+    console.error(e);
+    return json({ events: [] });
+  }
+};
+
+export const loader = async ({ params, request }: LoaderArgs) => {
+  try {
+    const user = await authenticator.isAuthenticated(request);
     const mysteryId = z.coerce.number().parse(params.mysteryId);
     const mystery = await getMysteryById(mysteryId);
     invariant(mystery !== null);
+
+    let events: AnyEventSchema[] = [];
+    let initialized = false;
+    let eventSessionId: undefined | number;
+
+    // Authenticated users will do event parsing with the session backed endpoint
+    // and db
+    if (user) {
+      const eventSession = await getEventSessionByMysteryId({
+        userId: user.id,
+        mysteryId,
+      });
+      const eventsBySession = await getEventsByMysteryId(eventSession.id);
+
+      events = filterEventsByType(eventsBySession, eventSchema);
+
+      if (!events.length && !eventSession.initialized) {
+        persistEvents({
+          playerInput: "",
+          mysteryId,
+          mysterySessionId: eventSession.id,
+        });
+      }
+
+      initialized = eventSession.initialized;
+      eventSessionId = eventSession.id;
+    } else {
+      return redirect(`/mystery/${mysteryId}/local`);
+    }
+
     return json({
       mystery,
+      events,
+      eventSessionId,
+      initialized,
     });
   } catch (e) {
     return redirect("/mystery");
   }
 };
 
-const fetchEvents = async ({
-  events,
-  mysteryId,
-  realismMode,
-}: {
-  events: AnyEventSchema[];
-  mysteryId: number | string;
-  realismMode?: boolean;
-}) => {
-  try {
-    const response = await fetch(`/mystery/${mysteryId}/action`, {
-      body: JSON.stringify({
-        events,
-        mysteryId,
-        realismMode,
-      }),
-      method: "post",
-    });
-    const json = await response.json();
-    return json.events;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
 export default function ExploremysteryById() {
-  const initialized = useRef(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(false);
-  const [events, setEvents] = useState<AnyEventSchema[]>([]);
-  const { mystery } = useLoaderData<typeof loader>();
+  const { pathname } = useActiveRoute();
+  const {
+    mystery,
+    events: initialEvents,
+    eventSessionId,
+  } = usePolledLoaderData<typeof loader>(pathname, (d) => !d.events.length);
+  const actionData = useActionData<typeof action>();
+  const { events, handleOptimisticEvent } = useEvents(
+    actionData?.events ?? initialEvents ?? []
+  );
+  const transition = useTransition();
+
+  const loading = transition.state === "submitting" || !events.length;
   const { World: world } = mystery;
 
   const mysteryId = mystery.id;
-  useEffect(() => {
-    const f = async () => {
-      initialized.current = true;
-      setLoading(true);
-      const initialEvents = await fetchEvents({
-        events: [],
-        mysteryId,
-      });
-      setLoading(false);
-      if (initialEvents) {
-        setEvents(initialEvents);
-        inputRef.current?.focus();
-      }
-    };
-    if (!initialized.current) {
-      f();
-    }
-  }, [mysteryId]);
+  const handleReset = useCallback(async () => {
+    const response = await fetch(`/api/mystery/${mysteryId}/reset-session`, {
+      method: "post",
+      body: JSON.stringify({
+        mysterySessionId: eventSessionId,
+      }),
+    });
 
-  console.log({ events });
+    const { success } = await response.json();
+
+    if (success) {
+      location.reload();
+    }
+  }, [eventSessionId, mysteryId]);
 
   return (
     <VerticalEdges>
-      <section>
-        <h1 className="text-3xl">
-          Mystery <b className="text-primary">{mystery.title}</b>
-        </h1>
-        <h3 className="text-neutral-content">{mystery.brief}</h3>
-        <br />
-        <h1 className="text-xl">
-          Location: <b className="text-primary">{world.name}</b>
-        </h1>
-        <h3 className="text-sm text-neutral-content">{world.description}</h3>
-      </section>
-      <section>
-        <EventLog events={events} loading={loading} />
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (loading) return;
-
-            const form = new FormData(e.currentTarget);
-
-            const input = z.coerce.string().parse(form.get("action-input"));
-            const realismMode = z.coerce
-              .boolean()
-              .parse(form.get("realism-mode"));
-
-            if (input) {
-              setLoading(true);
-              const newEvents = [
-                ...events,
-                playerEventSchema.parse({
-                  content: input.toString(),
-                  type: "player",
-                  id: events.length + 1,
-                }),
-              ];
-              setEvents(newEvents);
-              if (inputRef.current) {
-                inputRef.current.value = "";
-                // HACK
-                // blur the input so that safari doesn't hijack scroll
-                inputRef.current.blur();
-              }
-              try {
-                const nextEvents = await fetchEvents({
-                  events: newEvents,
-                  mysteryId,
-                  realismMode,
-                });
-                if (nextEvents) {
-                  setEvents(nextEvents);
-                  inputRef.current?.focus();
-                }
-              } catch (e) {
-                console.error(e);
-              } finally {
-                setLoading(false);
-              }
-            }
-          }}
-        >
-          <ActionInput loading={loading} disabled={loading} ref={inputRef} />
-        </form>
-      </section>
+      <MysteryHeader
+        brief={mystery.brief}
+        title={mystery.title}
+        worldDescription={world.description}
+        worldName={world.name}
+      />
+      <EventForm
+        onReset={handleReset}
+        addOptimisticEvent={handleOptimisticEvent}
+        events={events}
+        loading={loading}
+        status={loading ? null : `saved session ${eventSessionId}`}
+      />
     </VerticalEdges>
   );
 }

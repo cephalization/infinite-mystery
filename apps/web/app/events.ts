@@ -26,7 +26,7 @@ export type EventSchema = z.infer<typeof eventSchema>;
 export const playerEventSchema = eventSchema.merge(
   z.object({
     type: z.literal("player"),
-    invalidAction: z.boolean().optional().default(false),
+    invalidAction: z.boolean().optional().nullable().default(false),
   })
 );
 
@@ -76,7 +76,7 @@ export type ProcessableSchema = z.infer<typeof processableSchema>;
  * @returns output events typed by filter schema
  */
 export const filterEventsByType = <S extends z.ZodTypeAny>(
-  events: EventSchema[],
+  events: any[],
   filterSchema: S
 ) =>
   z
@@ -100,7 +100,7 @@ export const filterEventsByType = <S extends z.ZodTypeAny>(
  * @param events - array of events to send to AI
  * @returns filtered events, mapped into string representation
  */
-export const makeTimelineFromEvents = (events: EventSchema[]) =>
+export const makeTimelineFromEvents = (events: unknown[]) =>
   filterEventsByType(events, processableSchema).map((e) =>
-    `${e.content}`.trim()
+    `${e.type}: ${e.content}`.trim()
   );

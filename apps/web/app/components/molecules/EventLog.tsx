@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { scrollIntoView } from "seamless-scroll-polyfill";
 import type {
   AnyEventSchema,
@@ -72,12 +72,12 @@ const matchEvent = <E extends AnyEventSchema>(evt: E) => {
 };
 
 export const EventLog = ({ events = [], loading }: EventLogProps) => {
-  const scrollRef = useRef<HTMLLIElement>(null);
+  const scrollRef = useRef<HTMLUListElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (scrollRef.current) {
       // whenever new events are pushed, scroll to the bottom
-      scrollIntoView(scrollRef.current, { block: "end" });
+      scrollIntoView(scrollRef.current, { block: "end", behavior: "smooth" });
     }
   }, [events]);
 
@@ -85,26 +85,22 @@ export const EventLog = ({ events = [], loading }: EventLogProps) => {
     <Stippled
       className={clsx(
         "flex overflow-y-auto flex-col-reverse",
-        "h-64 max-h-64",
+        "basis-72 max-h-72",
         "md:h-96 md:max-h-96",
         "scroll-smooth"
       )}
     >
-      <ul className={clsx("p-2 flex flex-col gap-2")}>
+      <ul className={clsx("p-2 flex flex-col gap-2")} ref={scrollRef}>
         {events.map((evt) => {
           const Component = matchEvent(evt);
 
           return <Component key={`${evt.id}-${evt.type}`} />;
         })}
-        {/* uncomment these to test alignment */}
-        {/* <DMEvent event={{ content: "You see a store nearby" }} /> */}
-        {/* <PlayerEvent event={{ content: "I go to the store" }} /> */}
         {loading && (
           <li className="text-primary">
             <ThreeDots />
           </li>
         )}
-        <li ref={scrollRef}></li>
       </ul>
     </Stippled>
   );
