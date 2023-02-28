@@ -100,7 +100,7 @@ export const EventForm = ({
               "tooltip tooltip-top md:tooltip-left text-justify",
               !loading && "lg:tooltip-open"
             )}
-            data-tip="Click to save your progress by connecting it to an account"
+            data-tip="Save your progress, access it on any device"
           >
             <Link
               to={saveUrl}

@@ -7,7 +7,7 @@ import { getSession } from "~/server/session.server";
 // Handle an auth callback from a configured provider like discord
 export let loader = async ({ request, params }: LoaderArgs) => {
   let session = await getSession(request.headers.get("cookie"));
-  const redirectUrl = session.get("_redirect") ?? "/profile";
+  const redirectUrl = session.get("_redirect") ?? "/explore";
 
   if (params.provider) {
     return authenticator.authenticate(params.provider, request, {
