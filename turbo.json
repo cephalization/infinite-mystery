@@ -17,7 +17,8 @@
       ],
       "outputs": [
         "dist/**",
-        "build/**"
+        "build/**",
+        "public/build/**"
       ]
     },
     "generate": {
