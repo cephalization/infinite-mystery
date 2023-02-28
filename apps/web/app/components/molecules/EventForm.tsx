@@ -15,6 +15,7 @@ type EventFormProps = {
   className?: string;
   onSubmit?: (e: HTMLFormElement) => void;
   onReset?: () => void;
+  focusRef?: React.RefObject<HTMLInputElement>;
   saveUrl?: string;
   status?: React.ReactNode;
 };
@@ -25,13 +26,16 @@ export const EventForm = ({
   events = [],
   className,
   onSubmit,
+  focusRef,
   onReset,
   saveUrl,
   status,
 }: EventFormProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const maybeInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const submit = useSubmit();
+
+  const inputRef = focusRef || maybeInputRef;
 
   const submitFn = (e: HTMLFormElement) => {
     if (onSubmit) {
@@ -72,33 +76,38 @@ export const EventForm = ({
         // HACK
         // blur the input so that safari doesn't hijack scroll
         inputRef.current.blur();
-        inputRef.current.focus();
       }
     }
   };
 
   return (
     <section className={clsx("flex flex-col gap-2", className)}>
-      <div className="flex w-full gap-4 items-center flex-row-reverse">
+      <div className="flex w-full gap-1 items-center flex-row-reverse">
         {!!onReset && (
           <Form
             onSubmit={(e) => {
               e.preventDefault();
               onReset();
             }}
-            className="flex min-w-fit"
+            className="flex min-w-fit select-none"
           >
             <ResetButton disabled={loading} />
           </Form>
         )}
         {!!saveUrl && (
           <div
-            className="tooltip tooltip-left lg:tooltip-open text-left"
-            data-tip="Click to save your progress, and connect it to an account"
+            className={clsx(
+              "tooltip tooltip-top md:tooltip-left text-justify",
+              !loading && "lg:tooltip-open"
+            )}
+            data-tip="Click to save your progress by connecting it to an account"
           >
             <Link
               to={saveUrl}
-              className={clsx("btn gap-2", loading && "btn-disabled")}
+              className={clsx(
+                "btn gap-2 select-none",
+                loading && "btn-disabled"
+              )}
               aria-disabled={loading}
             >
               <ArrowUpOnSquareStack />
