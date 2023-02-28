@@ -11,39 +11,89 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  providerId  String    @unique
-  provider    String
-  displayName String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  admin       Boolean   @default(false)
-  mysteries   Mystery[]
-  worlds      World[]
+  id                   Int                   @id @default(autoincrement())
+  providerId           String                @unique
+  provider             String
+  displayName          String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  admin                Boolean               @default(false)
+  mysteries            Mystery[]
+  worlds               World[]
+  mysteryEventSessions MysteryEventSession[]
+  worldEventSessions   WorldEventSession[]
 }
 
 model Mystery {
-  id         Int      @id @default(autoincrement())
-  title      String   @unique
-  crime      String
-  brief      String
-  User       User?    @relation(fields: [userId], references: [id])
-  userId     Int?
-  previewImg String?
-  World      World    @relation(fields: [worldId], references: [id])
-  worldId    Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                  Int                   @id @default(autoincrement())
+  title               String                @unique
+  crime               String
+  brief               String
+  User                User?                 @relation(fields: [userId], references: [id])
+  userId              Int?
+  previewImg          String?
+  World               World                 @relation(fields: [worldId], references: [id])
+  worldId             Int
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  MysteryEventSession MysteryEventSession[]
 }
 
 model World {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
-  description String
-  mysteries   Mystery[]
-  User        User?     @relation(fields: [userId], references: [id])
-  userId      Int?
-  previewImg  String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  description       String
+  mysteries         Mystery[]
+  User              User?               @relation(fields: [userId], references: [id])
+  userId            Int?
+  previewImg        String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  WorldEventSession WorldEventSession[]
+}
+
+model WorldEventSession {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Event       Event[]
+  // every event session is tied to a user
+  User        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  // A session is created for a world
+  World       World    @relation(fields: [worldId], references: [id])
+  worldId     Int
+  // False if a brief has never been generated for this session
+  initialized Boolean  @default(false)
+}
+
+model MysteryEventSession {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Event       Event[]
+  // every event session is tied to a user
+  User        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  // A session is created for a mystery
+  Mystery     Mystery  @relation(fields: [mysteryId], references: [id])
+  mysteryId   Int
+  // False if a brief has never been generated for this session
+  initialized Boolean  @default(false)
+}
+
+model Event {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  type          String
+  content       String
+  // Used exclusively by player events
+  invalidAction Boolean?
+  // Relationships
+
+  WorldEventSession     WorldEventSession?   @relation(fields: [worldEventSessionId], references: [id])
+  worldEventSessionId   Int?
+  MysteryEventSession   MysteryEventSession? @relation(fields: [mysteryEventSessionId], references: [id])
+  mysteryEventSessionId Int?
 }

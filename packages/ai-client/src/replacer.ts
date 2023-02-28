@@ -23,7 +23,8 @@ export const replacer = <T extends Variables>({
   template,
   variables,
   canShorten,
-  maxLength = 3488,
+  maxLength = 3688,
+  endText,
 }: {
   template: string;
   variables: T;
@@ -34,6 +35,7 @@ export const replacer = <T extends Variables>({
    * It should be gte 4000 - max_tokens
    */
   maxLength?: number;
+  endText?: string;
 }) => {
   const keys = Object.keys(variables) as (keyof Variables)[];
 
@@ -74,5 +76,7 @@ export const replacer = <T extends Variables>({
     text = text.replaceAll(accessor, transformedValue);
   }
 
-  return text.trim();
+  const trimmedText = text.trim();
+
+  return endText ? `${trimmedText}${endText}` : trimmedText;
 };

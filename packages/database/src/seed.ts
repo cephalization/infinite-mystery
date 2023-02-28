@@ -22,6 +22,23 @@ async function main() {
       mysteries: true,
     },
   });
+  await prisma.world.update({
+    where: { name: "Starship Mega" },
+    data: {
+      mysteries: {
+        create: {
+          title: "Warp-drive Sabotage",
+          brief:
+            "You are an up and coming engineer working directly under the starship lead engineer, Francis. Warp-drive sabotage was discovered in the lowest levels of the ship’s engineering department, but the ship administration doesn’t know who did it, or why. You have been tasked with investigating the sabotage to discover what happened immediately. The safety of the whole ship could be at stake.",
+          crime:
+            "Helen is an engine mechanic that was once on her way to become a lead engineer. A childhood rival of hers, now lead engineer Francis, snubbed her from the job using subterfuge and nepotism. Enraged, Helen got access to the ship’s warp drive, and disabled failsafes that would kill the whole population of the ship should it go into warp speed. She did this in an attempt to frame Francis, and get him disgraced in the public eye.",
+        },
+      },
+    },
+    include: {
+      mysteries: true,
+    },
+  });
 }
 main()
   .then(async () => {

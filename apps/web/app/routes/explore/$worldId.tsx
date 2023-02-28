@@ -34,7 +34,7 @@ const fetchEvents = async ({
   realismMode?: boolean;
 }) => {
   try {
-    const response = await fetch(`/explore/${worldId}/action`, {
+    const response = await fetch(`/api/explore/${worldId}/generate-events`, {
       body: JSON.stringify({
         events,
         worldId,
@@ -84,7 +84,7 @@ export default function ExploreWorldById() {
         </h1>
         <h3 className="text-neutral-content">{world.description}</h3>
       </section>
-      <section>
+      <section className="flex flex-col">
         <EventLog events={events} loading={loading} />
         <form
           onSubmit={async (e) => {

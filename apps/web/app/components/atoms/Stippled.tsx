@@ -10,7 +10,7 @@ export const Stippled = forwardRef<HTMLDivElement, StippledProps>(
     return (
       <div
         className={clsx(
-          "flex flex-col basis-full bg-base-200 rounded-lg bg-top preview",
+          "flex flex-col bg-base-200 rounded-lg bg-top preview",
           className
         )}
         style={{ backgroundSize: "5px 5px" }}
