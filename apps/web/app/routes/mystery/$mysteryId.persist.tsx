@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocalStorage } from "react-use";
 import invariant from "tiny-invariant";
 import { z } from "zod";
@@ -53,6 +53,7 @@ const persistEvents = async ({
 };
 
 const PersistMystery = () => {
+  const initialized = useRef(false);
   const {
     mystery: { id },
   } = useLoaderData<typeof loader>();
@@ -60,6 +61,7 @@ const PersistMystery = () => {
 
   useEffect(() => {
     const persist = async () => {
+      initialized.current = true;
       try {
         const { success } = await persistEvents({
           events: z.array(eventSchema.omit({ id: true })).parse(localEvents),
@@ -76,7 +78,7 @@ const PersistMystery = () => {
         location.replace("/explore");
       }
     };
-    if (localEvents && id) {
+    if (localEvents && id && !initialized.current) {
       persist();
     }
   }, [localEvents, id]);
