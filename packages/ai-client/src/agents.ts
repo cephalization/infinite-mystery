@@ -1,6 +1,7 @@
 import { Handlers } from ".";
 import { replacer } from "./replacer";
 import { z } from "zod";
+import { ChatCompletionRequestMessage } from "openai";
 
 const mysteryDungeonMasterVariablesSchema = z.object({
   worldName: z.string(),
@@ -144,7 +145,7 @@ export const createEvaluator =
   async (variables: evaluatorVariables, customTemplate?: string) => {
     const validatedVariables = evaluatorVariablesSchema.parse(variables);
 
-    const prompt = replacer({
+    const systemPrompt = replacer({
       template:
         customTemplate ||
         `
@@ -163,51 +164,73 @@ as long as it is within the realm of physics to perform.
 The player is in a place called {worldName}.
 This is a description of {worldName}: {worldDescription}
 
-Example output:
-
-Action: I fly towards the far end of the building
-Evaluation: Invalid. You cannot fly to the end of the building, because you do not possess the ability to fly.
-
-Action: I walk towards the far end of the building
-Evaluation: Valid.
-
-Action: I jump up onto the concrete barricade
-Evaluation: Valid.
-
-Action: I smash through the concrete barricade
-Evaluation: Invalid. You do not have super-strength, you cannot smash through the concrete barricade.
-
-Action: I enter the presidential chambers
-Evaluation: Invalid. You cannot enter the presidential chambers because you are at home depot.
-
-Action: I suckerpunch Frederick
-Evaluation: Valid.
-
-Action: I strangle the strange figure
-Evaluation: Valid.
-
-End Example output
-
 This is a timeline of events that have happened in the game so far:
 
 [timeline]
 
 End timeline
-
-Now, perform your evaluation based on the following action:
-
-Action: {action}
-Evaluation:
 `,
       variables: validatedVariables,
       canShorten: "timeline",
     });
 
-    console.log("Evaluator prompt Length:", prompt.length);
+    console.log("Evaluator prompt Length:", systemPrompt.length);
 
-    const result = await handlers.completion(prompt);
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "system",
+      content: systemPrompt,
+    };
 
-    const resultText = result.data.choices.at(0)?.text ?? "";
+    // an array of chat completion request messages in the format of
+    // example action and evaluations from the prompt above
+    const sampleMessages: ChatCompletionRequestMessage[] = [
+      {
+        role: "system",
+        content: "The following is a sample set of actions and evaluations",
+      },
+      { role: "user", content: "I fly towards the far end of the building" },
+      {
+        role: "assistant",
+        content:
+          "Invalid. You cannot fly to the end of the building, because you do not possess the ability to fly.",
+      },
+      { role: "user", content: "I walk towards the far end of the building" },
+      { role: "assistant", content: "Valid." },
+      { role: "user", content: "I jump up onto the concrete barricade" },
+      { role: "assistant", content: "Valid." },
+      { role: "user", content: "I smash through the concrete barricade" },
+      {
+        role: "assistant",
+        content:
+          "Invalid. You do not have super-strength, you cannot smash through the concrete barricade.",
+      },
+      { role: "user", content: "I enter the presidential chambers" },
+      {
+        role: "assistant",
+        content:
+          "Invalid. You cannot enter the presidential chambers because you are at home depot.",
+      },
+      { role: "user", content: "I suckerpunch Frederick" },
+      { role: "assistant", content: "Valid." },
+      {
+        role: "system",
+        content: "End of sample set of actions and evaluations",
+      },
+    ];
+
+    const actionMessages: ChatCompletionRequestMessage[] = [
+      { role: "system", content: "Now, evaluate the following action" },
+      { role: "user", content: validatedVariables.action },
+    ];
+
+    const result = await handlers.chat([
+      systemMessage,
+      ...sampleMessages,
+      ...actionMessages,
+    ]);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
 
     if (!resultText) {
       return null;
