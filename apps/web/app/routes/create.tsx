@@ -8,6 +8,7 @@ import { Route } from "~/components/layouts/Route";
 import { Scroller } from "~/components/layouts/Scroller";
 import { aiClient } from "~/server/ai.server";
 import { authenticator } from "~/server/auth.server";
+import { uploadBase64Image } from "~/server/cdn.server";
 import { createForm, createFormSchema } from "~/server/database/create.server";
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -24,16 +25,39 @@ export const action = async ({ request }: ActionArgs) => {
       failureRedirect: "/login",
     });
     const form = createFormSchema.parse(await request.formData());
-    const worldImage = aiClient.agents.worldImageGenerator({
-      worldName: form.worldName,
-      worldDescription: form.worldDescription,
-    });
-    const mysteryImage = aiClient.agents.mysteryImageGenerator({
-      mysteryTitle: form.mysteryTitle,
-      crime: form.mysteryCrime,
-      worldDescription: form.worldDescription,
-      worldName: form.worldName,
-    });
+    const worldImage = aiClient.agents
+      .worldImageGenerator({
+        worldName: form.worldName,
+        worldDescription: form.worldDescription,
+      })
+      .then((r) => {
+        if (!r) {
+          throw new Error("Could not get image from openai");
+        }
+
+        return uploadBase64Image(form.worldName, r);
+      })
+      .then((r) => {
+        return r.url;
+      });
+    const mysteryImage = aiClient.agents
+      .mysteryImageGenerator({
+        mysteryTitle: form.mysteryTitle,
+        crime: form.mysteryCrime,
+        worldDescription: form.worldDescription,
+        worldName: form.worldName,
+      })
+      .then((r) => {
+        if (!r) {
+          throw new Error("Could not get image from openai");
+        }
+
+        return uploadBase64Image(form.mysteryTitle, r);
+      })
+      .then((r) => {
+        return r.url;
+      });
+
     const images = (await Promise.allSettled([worldImage, mysteryImage]))
       .map((s) => (s.status === "fulfilled" ? s.value : undefined))
       .filter((s) => s);
