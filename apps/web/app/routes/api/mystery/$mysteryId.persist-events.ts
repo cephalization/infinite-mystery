@@ -7,7 +7,6 @@ import {
   evaluatorEventSchema,
   makeTimelineFromEvents,
   playerEventSchema,
-  summaryEventSchema,
 } from "~/events";
 import { getMysteryById } from "~/server/database/mystery.server";
 import invariant from "tiny-invariant";
@@ -106,30 +105,17 @@ export const action = async ({ request }: ActionArgs) => {
       action: playerInput,
     });
 
-    if (aiEvent.status < 200 || aiEvent.status > 299) {
+    if (!aiEvent) {
       throw new Error("Bad ai response");
     }
 
-    const parts =
-      aiEvent.data.choices
-        .at(0)
-        ?.text?.split("SUM:")
-        .filter((f) => f)
-        .map((f) => f.trim()) ?? [];
-    invariant(parts.length >= 2);
-    const [dm, sum] = parts;
+    const dm = aiEvent;
 
     const newDMItem = dmEventSchema
       .merge(z.object({ id: z.undefined() }))
       .parse({
         type: "dm",
         content: dm.replace("- DM:", "").replace("- dm:", "") ?? "",
-      });
-    const newSummaryItem = summaryEventSchema
-      .merge(z.object({ id: z.undefined() }))
-      .parse({
-        type: "summary",
-        content: sum.replace("- Sum:", "").replace("- sum:", "") ?? "",
       });
     const newPlayerItem = playerEventSchema
       .merge(z.object({ id: z.undefined() }))
@@ -145,10 +131,6 @@ export const action = async ({ request }: ActionArgs) => {
     }
     await addEventToMysteryEventSession({
       input: newDMItem,
-      mysteryEventSessionId: mysterySessionId,
-    });
-    await addEventToMysteryEventSession({
-      input: newSummaryItem,
       mysteryEventSessionId: mysterySessionId,
     });
 

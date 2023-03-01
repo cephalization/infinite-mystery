@@ -7,7 +7,6 @@ import {
   evaluatorEventSchema,
   eventSchema,
   makeTimelineFromEvents,
-  summaryEventSchema,
 } from "~/events";
 import { getMysteryById } from "~/server/database/mystery.server";
 import invariant from "tiny-invariant";
@@ -69,32 +68,20 @@ export const action = async ({ request }: ActionArgs) => {
       action,
     });
 
-    if (aiEvent.status < 200 || aiEvent.status > 299) {
+    if (!aiEvent) {
       throw new Error("Bad ai response");
     }
 
-    const parts =
-      aiEvent.data.choices
-        .at(0)
-        ?.text?.split("SUM:")
-        .filter((f) => f)
-        .map((f) => f.trim()) ?? [];
-    invariant(parts.length >= 2);
-    const [dm, sum] = parts;
+    const dm = aiEvent;
 
     const newDMItem = dmEventSchema.parse({
       id: events.length + 1,
       type: "dm",
       content: dm.replace("- DM:", "").replace("- dm:", "") ?? "",
     });
-    const newSummaryItem = summaryEventSchema.parse({
-      id: events.length + 2,
-      type: "summary",
-      content: sum.replace("- Sum:", "").replace("- sum:", "") ?? "",
-    });
 
     return json({
-      events: [...events, newDMItem, newSummaryItem],
+      events: [...events, newDMItem],
       error: null,
     });
   } catch (e) {

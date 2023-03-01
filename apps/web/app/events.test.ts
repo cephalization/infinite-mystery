@@ -42,5 +42,9 @@ test("filterEventsByType", () => {
   expect(evaluatorEvents.length).toBe(2);
 
   const processableEvents = filterEventsByType(testEvents, processableSchema);
-  expect(processableEvents.length).toBe(1);
+  expect(processableEvents.length).toBe(2);
+  expect(
+    (processableEvents as PlayerEventSchema[]).filter((e) => e?.invalidAction)
+      .length
+  ).toBe(0);
 });
