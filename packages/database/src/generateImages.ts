@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { createAiClient } from "ai-client";
+import { uploadBase64Image } from "cdn";
 
 const prisma = new PrismaClient();
 async function main() {
@@ -13,20 +14,26 @@ async function main() {
   });
 
   worlds.forEach(async (world) => {
-    const image = await aiClient.agents.worldImageGenerator({
-      worldName: world.name,
-      worldDescription: world.description,
-    });
-
-    if (image) {
-      await prisma.world.update({
-        where: {
-          id: world.id,
-        },
-        data: {
-          previewImg: image,
-        },
+    try {
+      const image = await aiClient.agents.worldImageGenerator({
+        worldName: world.name,
+        worldDescription: world.description,
       });
+      const convertedImage =
+        image && (await uploadBase64Image(world.name, image));
+
+      if (convertedImage) {
+        await prisma.world.update({
+          where: {
+            id: world.id,
+          },
+          data: {
+            previewImg: convertedImage.url,
+          },
+        });
+      }
+    } catch (e) {
+      console.error(e);
     }
   });
 
@@ -39,22 +46,28 @@ async function main() {
   });
 
   mysteries.forEach(async (mystery) => {
-    const image = await aiClient.agents.mysteryImageGenerator({
-      mysteryTitle: mystery.title,
-      crime: mystery.crime,
-      worldDescription: mystery.World.description,
-      worldName: mystery.World.name,
-    });
-
-    if (image) {
-      await prisma.mystery.update({
-        where: {
-          id: mystery.id,
-        },
-        data: {
-          previewImg: image,
-        },
+    try {
+      const image = await aiClient.agents.mysteryImageGenerator({
+        mysteryTitle: mystery.title,
+        crime: mystery.crime,
+        worldDescription: mystery.World.description,
+        worldName: mystery.World.name,
       });
+      const convertedImage =
+        image && (await uploadBase64Image(mystery.title, image));
+
+      if (convertedImage) {
+        await prisma.mystery.update({
+          where: {
+            id: mystery.id,
+          },
+          data: {
+            previewImg: convertedImage.url,
+          },
+        });
+      }
+    } catch (e) {
+      console.error(e);
     }
   });
 }

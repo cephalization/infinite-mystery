@@ -9,5 +9,5 @@ export const makeImgUrl = (url: string) => {
     return url;
   }
 
-  return `data:image/png;base64, ${url}`;
+  return `data:image/png;base64,${url}`;
 };

@@ -17,6 +17,9 @@ export const serverConfigSchema = {
   DISCORD_CLIENT_SECRET: z.string().min(1),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  CLOUDINARY_CLOUD_NAME: z.string().min(1),
+  CLOUDINARY_API_KEY: z.string().min(1),
+  CLOUDINARY_API_SECRET: z.string().min(1),
   // hosted domain, localhost or deployed url
   WEB_URL: z
     .string()

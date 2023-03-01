@@ -16,13 +16,15 @@
     "db:push": "prisma db push --skip-generate",
     "db:seed": "tsx src/seed.ts",
     "db:generate-images": "tsx src/generateImages.ts",
+    "db:migrate-images": "tsx src/migrateImages.ts",
     "format": "prisma format",
     "generate": "prisma generate",
     "studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "4.10.1",
-    "ai-client": "*"
+    "ai-client": "*",
+    "cdn": "*"
   },
   "devDependencies": {
     "prisma": "4.10.1",
