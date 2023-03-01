@@ -19,7 +19,6 @@
     "database": "*"
   },
   "devDependencies": {
-    "prisma": "4.10.1",
     "rimraf": "^4.1.2",
     "tsconfig": "*",
     "tsup": "6.6.0",
