@@ -202,11 +202,10 @@ World description: {worldDescription}
         : []),
     ];
 
-    const result = await handlers.chat([
-      systemMessage,
-      ...sampleMessages,
-      ...timelineMessages,
-    ]);
+    const result = await handlers.chat(
+      [systemMessage, ...sampleMessages, ...timelineMessages],
+      { temperature: 0.8 }
+    );
 
     console.log(result.data.choices, result.data.usage);
 
