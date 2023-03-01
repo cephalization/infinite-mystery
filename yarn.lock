@@ -2163,15 +2163,6 @@
   resolved "https://registry.yarnpkg.com/@vanilla-extract/private/-/private-1.0.3.tgz#7ec72bc2ff6fe51f9d650f962e8d1989b073690f"
   integrity sha512-17kVyLq3ePTKOkveHxXuIJZtGYs+cSoev7BlP+Lf4916qfDhk/HBjvlYDe8egrea7LNPHKwSZJK/bzZC+Q6AwQ==
 
-"@vitest/expect@0.28.5":
-  version "0.28.5"
-  resolved "https://registry.yarnpkg.com/@vitest/expect/-/expect-0.28.5.tgz#d5a6eccd014e9ad66fe87a20d16426a2815c0e8a"
-  integrity sha512-gqTZwoUTwepwGIatnw4UKpQfnoyV0Z9Czn9+Lo2/jLIt4/AXLTn+oVZxlQ7Ng8bzcNkR+3DqLJ08kNr8jRmdNQ==
-  dependencies:
-    "@vitest/spy" "0.28.5"
-    "@vitest/utils" "0.28.5"
-    chai "^4.3.7"
-
 "@vitest/expect@0.29.2":
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/@vitest/expect/-/expect-0.29.2.tgz#7503aabd72764612b0bc8258bafa3232ccb81586"
@@ -2180,15 +2171,6 @@
     "@vitest/spy" "0.29.2"
     "@vitest/utils" "0.29.2"
     chai "^4.3.7"
-
-"@vitest/runner@0.28.5":
-  version "0.28.5"
-  resolved "https://registry.yarnpkg.com/@vitest/runner/-/runner-0.28.5.tgz#4a18fe0e40b25569763f9f1f64b799d1629b3026"
-  integrity sha512-NKkHtLB+FGjpp5KmneQjTcPLWPTDfB7ie+MmF1PnUBf/tGe2OjGxWyB62ySYZ25EYp9krR5Bw0YPLS/VWh1QiA==
-  dependencies:
-    "@vitest/utils" "0.28.5"
-    p-limit "^4.0.0"
-    pathe "^1.1.0"
 
 "@vitest/runner@0.29.2":
   version "0.29.2"
@@ -2199,30 +2181,12 @@
     p-limit "^4.0.0"
     pathe "^1.1.0"
 
-"@vitest/spy@0.28.5":
-  version "0.28.5"
-  resolved "https://registry.yarnpkg.com/@vitest/spy/-/spy-0.28.5.tgz#b69affa0786200251b9e5aac5c58bbfb1b3273c9"
-  integrity sha512-7if6rsHQr9zbmvxN7h+gGh2L9eIIErgf8nSKYDlg07HHimCxp4H6I/X/DPXktVPPLQfiZ1Cw2cbDIx9fSqDjGw==
-  dependencies:
-    tinyspy "^1.0.2"
-
 "@vitest/spy@0.29.2":
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/@vitest/spy/-/spy-0.29.2.tgz#4210d844fabd9a68a1d2932d6a26c051bd089021"
   integrity sha512-Hc44ft5kaAytlGL2PyFwdAsufjbdOvHklwjNy/gy/saRbg9Kfkxfh+PklLm1H2Ib/p586RkQeNFKYuJInUssyw==
   dependencies:
     tinyspy "^1.0.2"
-
-"@vitest/utils@0.28.5":
-  version "0.28.5"
-  resolved "https://registry.yarnpkg.com/@vitest/utils/-/utils-0.28.5.tgz#7b82b528df86adfbd4a1f6a3b72c39790e81de0d"
-  integrity sha512-UyZdYwdULlOa4LTUSwZ+Paz7nBHGTT72jKwdFSV4IjHF1xsokp+CabMdhjvVhYwkLfO88ylJT46YMilnkSARZA==
-  dependencies:
-    cli-truncate "^3.1.0"
-    diff "^5.1.0"
-    loupe "^2.3.6"
-    picocolors "^1.0.0"
-    pretty-format "^27.5.1"
 
 "@vitest/utils@0.29.2":
   version "0.29.2"
@@ -8667,20 +8631,6 @@ vfile@^5.0.0:
     unist-util-stringify-position "^3.0.0"
     vfile-message "^3.0.0"
 
-vite-node@0.28.5:
-  version "0.28.5"
-  resolved "https://registry.yarnpkg.com/vite-node/-/vite-node-0.28.5.tgz#56d0f78846ea40fddf2e28390899df52a4738006"
-  integrity sha512-LmXb9saMGlrMZbXTvOveJKwMTBTNUH66c8rJnQ0ZPNX+myPEol64+szRzXtV5ORb0Hb/91yq+/D3oERoyAt6LA==
-  dependencies:
-    cac "^6.7.14"
-    debug "^4.3.4"
-    mlly "^1.1.0"
-    pathe "^1.1.0"
-    picocolors "^1.0.0"
-    source-map "^0.6.1"
-    source-map-support "^0.5.21"
-    vite "^3.0.0 || ^4.0.0"
-
 vite-node@0.29.2:
   version "0.29.2"
   resolved "https://registry.yarnpkg.com/vite-node/-/vite-node-0.29.2.tgz#463626197e248971774075faf3d6896c29cf8062"
@@ -8704,36 +8654,6 @@ vite-node@0.29.2:
     rollup "^3.10.0"
   optionalDependencies:
     fsevents "~2.3.2"
-
-vitest@^0.28.5:
-  version "0.28.5"
-  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.28.5.tgz#94410a8924cd7189e4f1adffa8c5cde809cbf2f9"
-  integrity sha512-pyCQ+wcAOX7mKMcBNkzDwEHRGqQvHUl0XnoHR+3Pb1hytAHISgSxv9h0gUiSiYtISXUU3rMrKiKzFYDrI6ZIHA==
-  dependencies:
-    "@types/chai" "^4.3.4"
-    "@types/chai-subset" "^1.3.3"
-    "@types/node" "*"
-    "@vitest/expect" "0.28.5"
-    "@vitest/runner" "0.28.5"
-    "@vitest/spy" "0.28.5"
-    "@vitest/utils" "0.28.5"
-    acorn "^8.8.1"
-    acorn-walk "^8.2.0"
-    cac "^6.7.14"
-    chai "^4.3.7"
-    debug "^4.3.4"
-    local-pkg "^0.4.2"
-    pathe "^1.1.0"
-    picocolors "^1.0.0"
-    source-map "^0.6.1"
-    std-env "^3.3.1"
-    strip-literal "^1.0.0"
-    tinybench "^2.3.1"
-    tinypool "^0.3.1"
-    tinyspy "^1.0.2"
-    vite "^3.0.0 || ^4.0.0"
-    vite-node "0.28.5"
-    why-is-node-running "^2.2.2"
 
 vitest@^0.29.2:
   version "0.29.2"
