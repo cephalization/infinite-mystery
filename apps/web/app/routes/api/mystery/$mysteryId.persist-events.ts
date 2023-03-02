@@ -17,6 +17,10 @@ import {
 } from "~/server/database/eventSession.server";
 import { getEventsByMysteryId } from "~/server/database/event.server";
 
+/**
+ * This endpoint takes a mysteryId and player input, generates a new event,
+ * then persists it to the db
+ */
 export const action = async ({ request }: ActionArgs) => {
   try {
     const rJson = await request.json();

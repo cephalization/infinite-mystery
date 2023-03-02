@@ -25,21 +25,26 @@ export const makeTimelineMessages = (
   timeline: Message[],
   introPrompt: string,
   newUserAction?: string | null
-): ChatCompletionRequestMessage[] => [
-  {
-    role: "system",
-    content: introPrompt,
-  },
-  ...timeline,
-  ...(newUserAction
+): ChatCompletionRequestMessage[] => {
+  const timelineIntro = timeline.length
+    ? [
+        {
+          role: "system",
+          content: introPrompt,
+        } as const,
+      ]
+    : [];
+  const newUserActionMessage = newUserAction
     ? [
         {
           role: "user",
           content: newUserAction,
         } as const,
       ]
-    : []),
-];
+    : [];
+
+  return [...timelineIntro, ...timeline, ...newUserActionMessage];
+};
 
 /**
  * Given a list of samples, and a prompt for the user, generate a list of messages
@@ -52,8 +57,11 @@ export const makeTimelineMessages = (
 export const makeSampleMessages = (
   samples: Message[],
   introPrompt: string
-): ChatCompletionRequestMessage[] => [
-  { role: "system", content: introPrompt },
-  ...samples,
-  { role: "system", content: "End of samples" },
-];
+): ChatCompletionRequestMessage[] =>
+  samples.length
+    ? [
+        { role: "system", content: introPrompt },
+        ...samples,
+        { role: "system", content: "End of samples" },
+      ]
+    : [];

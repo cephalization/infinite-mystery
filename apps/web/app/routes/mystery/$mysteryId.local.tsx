@@ -28,10 +28,12 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 const fetchEvents = async ({
+  action,
   events,
   mysteryId,
   realismMode = true,
 }: {
+  action?: string;
   events: AnyEventSchema[];
   mysteryId: number | string;
   realismMode?: boolean;
@@ -39,6 +41,7 @@ const fetchEvents = async ({
   try {
     const response = await fetch(`/api/mystery/${mysteryId}/generate-events`, {
       body: JSON.stringify({
+        action,
         events,
         mysteryId,
         realismMode,
@@ -113,18 +116,16 @@ export default function ExploremysteryByIdLocal() {
     try {
       const formData = new FormData(e);
 
-      const playerAction = formData.get("action-input");
+      const playerAction = z.coerce
+        .string()
+        .parse(formData.get("action-input"));
       const realismMode = z.coerce
         .boolean()
         .parse(formData.get("realism-mode"));
-      const playerEvent = playerEventSchema.parse({
-        content: playerAction?.toString(),
-        type: "player",
-        id: events.length + 1,
-      });
 
       const newEvents = await fetchEvents({
-        events: [...events, playerEvent],
+        action: playerAction,
+        events: [...events],
         mysteryId,
         realismMode,
       });

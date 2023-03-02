@@ -55,7 +55,7 @@ Never give information to the player that they didn't find directly by exploring
     );
 
     const systemMessage: ChatCompletionRequestMessage = {
-      role: "system",
+      role: "user",
       content: systemPrompt,
     };
 
@@ -96,15 +96,32 @@ Never give information to the player that they didn't find directly by exploring
 
     const timelineMessages = makeTimelineMessages(
       timeline,
-      "The following is the timeline of events that have occurred in the game. The next message is the setup of the game, the world, and the player's role in it",
+      "The following is the timeline of events that have occurred in the game so far.",
       action
     );
 
-    const result = await handlers.chat([
+    // if we don't have a timeline, generate a message to brief the player on the game and get them started
+    const briefMessage: ChatCompletionRequestMessage[] =
+      !timelineMessages.length
+        ? [
+            {
+              role: "user",
+              content:
+                "Setup of the game, the world, and the player's role in it. Do not break character. Immerse the player.",
+            },
+          ]
+        : [];
+
+    const messages = [
       systemMessage,
       ...sampleMessages,
       ...timelineMessages,
-    ]);
+      ...briefMessage,
+    ];
+
+    console.log(messages);
+
+    const result = await handlers.chat(messages);
 
     console.log(result.data.choices, result.data.usage);
 
@@ -139,9 +156,12 @@ take in the world, and you will describe what happens when those actions are tak
 This game takes place in a world called: {worldName}
 World description: {worldDescription}
 
-Never say no to the player, your job is only to describe what happens next. Never make decisions or take actions for the player in your descriptions.
+Never say no to the player, your job is only to describe what happens next. 
+Never make decisions for the player in your descriptions.
+Never take further actions for the player in your descriptions.
 Your descriptions should be complete, informative, interesting and well written.
 Do not tell the player anything that would take them out of the world, or break the immersion of the game.
+Only describe the outcomes of the player's actions, they should not have to elaborate or take additional actions like rolling dice.
 `,
       variables: validatedVariables,
     });
@@ -152,7 +172,7 @@ Do not tell the player anything that would take them out of the world, or break 
     );
 
     const systemMessage: ChatCompletionRequestMessage = {
-      role: "system",
+      role: "user",
       content: systemPrompt,
     };
 
@@ -218,7 +238,8 @@ Your responsibility is to evaluate the validity of the action the player is
 trying to take (this includes questions the player is asking the DM), considering the timeline of the player's
 actions so far, information about the world they are in, and their location
 and current status.
-Always start your evaluation with "Invalid." or "Valid.".
+You must start all evaluations with the word "Invalid." or the word "Valid.".
+ONLY EVALUATE THE ACTION THE PLAYER IS TRYING TO TAKE. DO NOT EVALUATE THE OUTCOME OF THE ACTION.
 
 The player is a human being. They do not have magical abilities or
 special powers of any kind.
@@ -226,7 +247,7 @@ special powers of any kind.
 You can allow the player to do absurd, illegal, unexpected, inexplicable or violent things
 as long as it is within the realm of physics to perform.
 
-The player is in a place called: {worldName}
+The player is in a world called: {worldName}
 This is a description of {worldName}: {worldDescription}
 `,
       variables: validatedVariables,
@@ -281,15 +302,12 @@ This is a description of {worldName}: {worldDescription}
       { role: "user", content: action },
     ];
 
-    const result = await handlers.chat(
-      [
-        systemMessage,
-        ...sampleMessages,
-        ...timelineMessages,
-        ...actionMessages,
-      ],
-      { temperature: 0.2 }
-    );
+    const result = await handlers.chat([
+      systemMessage,
+      ...sampleMessages,
+      ...timelineMessages,
+      ...actionMessages,
+    ]);
 
     console.log(result.data.choices, result.data.usage);
     const resultText = result.data.choices.at(0)?.message?.content ?? "";
