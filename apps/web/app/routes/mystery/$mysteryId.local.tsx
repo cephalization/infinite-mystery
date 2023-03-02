@@ -9,7 +9,6 @@ import { VerticalEdges } from "~/components/layouts/VerticalEdges";
 import { EventForm } from "~/components/molecules/EventForm";
 import { MysteryHeader } from "~/components/molecules/MysteryHeader";
 import type { AnyEventSchema } from "~/events";
-import { playerEventSchema } from "~/events";
 import { eventSchema, filterEventsByType } from "~/events";
 import { useEvents } from "~/hooks/useEvents";
 import { getMysteryById } from "~/server/database/mystery.server";

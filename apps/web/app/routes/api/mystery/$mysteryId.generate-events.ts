@@ -11,7 +11,6 @@ import {
 } from "~/events";
 import { getMysteryById } from "~/server/database/mystery.server";
 import invariant from "tiny-invariant";
-import * as R from "remeda";
 
 /** This endpoint takes a set of events and then returns a new set of events */
 export const action = async ({ request }: ActionArgs) => {

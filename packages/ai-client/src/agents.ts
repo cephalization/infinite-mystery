@@ -161,7 +161,7 @@ Never make decisions for the player in your descriptions.
 Never take further actions for the player in your descriptions.
 Your descriptions should be complete, informative, interesting and well written.
 Do not tell the player anything that would take them out of the world, or break the immersion of the game.
-Only describe the outcomes of the player's actions, they should not have to elaborate or take additional actions like rolling dice.
+Only describe the outcome of the player's immediate action.
 `,
       variables: validatedVariables,
     });
