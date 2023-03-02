@@ -1,6 +1,7 @@
 import { Form, Link, useSubmit } from "@remix-run/react";
 import clsx from "clsx";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { usePrevious } from "react-use";
 import { z } from "zod";
 import type { AnyEventSchema, PlayerEventSchema } from "~/events";
 import { ResetButton } from "../atoms/ResetButton";
@@ -34,6 +35,7 @@ export const EventForm = ({
   const maybeInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const submit = useSubmit();
+  const prevLoading = usePrevious(loading);
 
   const inputRef = focusRef || maybeInputRef;
 
@@ -79,6 +81,15 @@ export const EventForm = ({
       }
     }
   };
+
+  // Focus the input when the form is done loading
+  useEffect(() => {
+    const shouldFocus = prevLoading === true && loading === false;
+    if (shouldFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, prevLoading]);
 
   return (
     <section className={clsx("flex flex-col gap-2", className)}>

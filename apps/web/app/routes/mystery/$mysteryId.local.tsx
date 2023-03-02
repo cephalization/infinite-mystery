@@ -46,7 +46,11 @@ const fetchEvents = async ({
       method: "post",
     });
     const json = await response.json();
-    return filterEventsByType(json.events, eventSchema);
+
+    // response events, sorted by id asc
+    return filterEventsByType(json.events, eventSchema).sort((a, b) => {
+      return a.id - b.id;
+    });
   } catch (e) {
     console.error(e);
     return e as Error;
@@ -54,8 +58,6 @@ const fetchEvents = async ({
 };
 
 export default function ExploremysteryByIdLocal() {
-  // track a ref on an inner input so that it can be focused after events load in
-  const actionInputRef = useRef<HTMLInputElement>(null);
   const [fetchLoading, setLoading] = useState(false);
   const { mystery } = useLoaderData<typeof loader>();
   const localStorageKey = `mystery/${mystery.id}/events`;
@@ -129,7 +131,8 @@ export default function ExploremysteryByIdLocal() {
 
       if (Array.isArray(newEvents)) {
         handleEventChange(newEvents);
-        actionInputRef.current?.focus();
+      } else {
+        handleEventChange(localEvents ?? events);
       }
     } catch (e) {
       console.error(e);
@@ -159,7 +162,6 @@ export default function ExploremysteryByIdLocal() {
         onSubmit={handleSubmit}
         onReset={handleReset}
         saveUrl={`/api/mystery/${mystery.id}/ingest-events?redirect=/mystery/${mystery.id}/persist`}
-        focusRef={actionInputRef}
       />
     </VerticalEdges>
   );
