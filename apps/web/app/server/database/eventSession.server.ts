@@ -58,7 +58,7 @@ export const getEventSessionByMysteryId = async ({
       Event: true,
     },
     orderBy: {
-      updatedAt: "desc",
+      createdAt: "asc",
     },
   });
 
