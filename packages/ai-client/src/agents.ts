@@ -2,15 +2,11 @@ import { Handlers } from ".";
 import { replacer } from "./replacer";
 import { z } from "zod";
 import { ChatCompletionRequestMessage } from "openai";
-
-const messageSchema = z.object({
-  content: z.string(),
-  role: z.union([
-    z.literal("system"),
-    z.literal("user"),
-    z.literal("assistant"),
-  ]),
-});
+import {
+  makeSampleMessages,
+  makeTimelineMessages,
+  messageSchema,
+} from "./chat";
 
 const mysteryDungeonMasterVariablesSchema = z.object({
   worldName: z.string(),
@@ -40,15 +36,15 @@ export const createMysteryDungeonMaster =
         `
 You are the dungeon master (DM) for a whodunnit role-playing game. The player will tell you actions they want to
 take in the world, and you will describe what happens when those actions are taken.
-Never say no to the player, your job is only to describe what happens next. Never make decisions or take actions for the player in your descriptions.
-Your descriptions should be complete, informative, interesting and well written.
-As the player explores, they will slowly come across clues that will help them piece together the who, how, and why of the crime.
-Never give information to the player that they didn't find directly by exploring the world and asking witnesses.
-Do not tell the player anything that would take them out of the world, or break the immersion of the game.
 This game takes place in a world called: {worldName}
 World description: {worldDescription}
 This is the crime that the player will be trying to solve: {crime}
 This is the brief of the crime that the player can see: {brief}
+
+Never say no to the player, your job is only to describe what happens next. Never make decisions or take actions for the player in your descriptions.
+Your descriptions should be complete, informative, interesting and well written.
+As the player explores, they will slowly come across clues that will help them piece together the who, how, and why of the crime.
+Never give information to the player that they didn't find directly by exploring the world and asking witnesses.
 `,
       variables: validatedVariables,
     });
@@ -65,43 +61,44 @@ This is the brief of the crime that the player can see: {brief}
 
     // an array of chat completion request messages in the format of
     // example timeline entries from the prompt above
-    const sampleMessages: ChatCompletionRequestMessage[] = [
-      {
-        role: "system",
-        content:
-          "The following is a sample timeline, of player actions and dm responses",
-      },
-      { role: "user", content: "I enter the room" },
-      {
-        role: "assistant",
-        content:
-          "You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles to himself.",
-      },
-      { role: "user", content: "What do I see?" },
-      {
-        role: "assistant",
-        content:
-          "To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors. It smells like smoke.",
-      },
-      { role: "system", content: "End of sample timeline" },
-    ];
+    const sampleMessages = makeSampleMessages(
+      [
+        { role: "user", content: "I enter the room" },
+        {
+          role: "assistant",
+          content:
+            "You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles to himself.",
+        },
+        { role: "user", content: "What do I see?" },
+        {
+          role: "assistant",
+          content:
+            "To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors. It smells like smoke.",
+        },
+        { role: "user", content: "I punch Steven in the face" },
+        {
+          role: "assistant",
+          content:
+            "Steven recoils in pain. You fist pulses with red brusing. The guards rush towards your direction, weapons drawn.",
+        },
+        {
+          role: "user",
+          content: "I draw my weapon, and aim at the mysterious figure",
+        },
+        {
+          role: "assistant",
+          content:
+            "The figure seemingly blinks out of existence. After a few moments you feel a rush of air behind you. Everything goes black.",
+        },
+      ],
+      "The following is a sample timeline, of player actions and dm responses. These samples are abstract, and should not be drawn from directly"
+    );
 
-    const timelineMessages: ChatCompletionRequestMessage[] = [
-      {
-        role: "system",
-        content:
-          "The following is the timeline of events that have occurred in the game. The next message is the setup of the game, the world, and the player's role in it",
-      },
-      ...timeline,
-      ...(action
-        ? [
-            {
-              role: "user",
-              content: action,
-            } as const,
-          ]
-        : []),
-    ];
+    const timelineMessages = makeTimelineMessages(
+      timeline,
+      "The following is the timeline of events that have occurred in the game. The next message is the setup of the game, the world, and the player's role in it",
+      action
+    );
 
     const result = await handlers.chat([
       systemMessage,
@@ -111,11 +108,7 @@ This is the brief of the crime that the player can see: {brief}
 
     console.log(result.data.choices, result.data.usage);
 
-    const resultText = result.data.choices.at(0)?.message?.content ?? "";
-
-    if (!resultText) {
-      return null;
-    }
+    const resultText = result.data.choices.at(0)?.message?.content ?? null;
 
     return resultText;
   };
@@ -143,11 +136,12 @@ export const createExploreDungeonMaster =
         `
 You are the dungeon master (DM) for a whodunnit role-playing game. The player will tell you actions they want to
 take in the world, and you will describe what happens when those actions are taken.
+This game takes place in a world called: {worldName}
+World description: {worldDescription}
+
 Never say no to the player, your job is only to describe what happens next. Never make decisions or take actions for the player in your descriptions.
 Your descriptions should be complete, informative, interesting and well written.
 Do not tell the player anything that would take them out of the world, or break the immersion of the game.
-This game takes place in a world called: {worldName}
-World description: {worldDescription}
 `,
       variables: validatedVariables,
     });
@@ -164,43 +158,29 @@ World description: {worldDescription}
 
     // an array of chat completion request messages in the format of
     // example timeline entries from the prompt above
-    const sampleMessages: ChatCompletionRequestMessage[] = [
-      {
-        role: "system",
-        content:
-          "The following is a sample timeline, of player actions and dm responses",
-      },
-      { role: "user", content: "I enter the room" },
-      {
-        role: "assistant",
-        content:
-          "You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles to himself.",
-      },
-      { role: "user", content: "What do I see?" },
-      {
-        role: "assistant",
-        content:
-          "To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors. It smells like smoke.",
-      },
-      { role: "system", content: "End of sample timeline" },
-    ];
+    const sampleMessages = makeSampleMessages(
+      [
+        { role: "user", content: "I enter the room" },
+        {
+          role: "assistant",
+          content:
+            "You walk into a small, gray stone room smelling of dirt and old leather. Ahead, three beds sit tight against the wall. Two bandits snore loudly as the dim light from the torches bounces off the walls. One shifts in bed and grumbles to himself.",
+        },
+        { role: "user", content: "What do I see?" },
+        {
+          role: "assistant",
+          content:
+            "To your left are two small wooden doors, and at the end of the hall you can see a set of large steel double doors. It smells like smoke.",
+        },
+      ],
+      "The following is a sample timeline, of player actions and dm responses"
+    );
 
-    const timelineMessages: ChatCompletionRequestMessage[] = [
-      {
-        role: "system",
-        content:
-          "The following is the timeline of events that have occurred in the game. The next message is the setup of the game, the world, and the player's role in it",
-      },
-      ...timeline,
-      ...(action
-        ? [
-            {
-              role: "user",
-              content: action,
-            } as const,
-          ]
-        : []),
-    ];
+    const timelineMessages = makeTimelineMessages(
+      timeline,
+      "The following is the timeline of events that have occurred in the game. The next message is the setup of the game, the world, and the player's role in it",
+      action
+    );
 
     const result = await handlers.chat(
       [systemMessage, ...sampleMessages, ...timelineMessages],
@@ -209,11 +189,7 @@ World description: {worldDescription}
 
     console.log(result.data.choices, result.data.usage);
 
-    const resultText = result.data.choices.at(0)?.message?.content ?? "";
-
-    if (!resultText) {
-      return null;
-    }
+    const resultText = result.data.choices.at(0)?.message?.content ?? null;
 
     return resultText;
   };
@@ -265,53 +241,40 @@ This is a description of {worldName}: {worldDescription}
 
     // an array of chat completion request messages in the format of
     // example action and evaluations from the prompt above
-    const sampleMessages: ChatCompletionRequestMessage[] = [
-      {
-        role: "system",
-        content: "The following is a sample set of actions and evaluations",
-      },
-      { role: "user", content: "I fly towards the far end of the building" },
-      {
-        role: "assistant",
-        content:
-          "Invalid. You cannot fly to the end of the building, because you do not possess the ability to fly.",
-      },
-      { role: "user", content: "I walk towards the far end of the building" },
-      { role: "assistant", content: "Valid." },
-      { role: "user", content: "I jump up onto the concrete barricade" },
-      { role: "assistant", content: "Valid." },
-      { role: "user", content: "I smash through the concrete barricade" },
-      {
-        role: "assistant",
-        content:
-          "Invalid. You do not have super-strength, you cannot smash through the concrete barricade.",
-      },
-      { role: "user", content: "I enter the presidential chambers" },
-      {
-        role: "assistant",
-        content:
-          "Invalid. You cannot enter the presidential chambers because you are at home depot.",
-      },
-      { role: "user", content: "I suckerpunch Frederick" },
-      { role: "assistant", content: "Valid." },
-      {
-        role: "system",
-        content: "End of sample set of actions and evaluations",
-      },
-    ];
+    const sampleMessages = makeSampleMessages(
+      [
+        { role: "user", content: "I fly towards the far end of the building" },
+        {
+          role: "assistant",
+          content:
+            "Invalid. You cannot fly to the end of the building, because you do not possess the ability to fly.",
+        },
+        { role: "user", content: "I walk towards the far end of the building" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I jump up onto the concrete barricade" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I smash through the concrete barricade" },
+        {
+          role: "assistant",
+          content:
+            "Invalid. You do not have super-strength, you cannot smash through the concrete barricade.",
+        },
+        { role: "user", content: "I enter the presidential chambers" },
+        {
+          role: "assistant",
+          content:
+            "Invalid. You cannot enter the presidential chambers because you are at home depot.",
+        },
+        { role: "user", content: "I suckerpunch Frederick" },
+        { role: "assistant", content: "Valid." },
+      ],
+      "The following is a sample set of actions and evaluations"
+    );
 
-    const timelineMessages: ChatCompletionRequestMessage[] = [
-      {
-        role: "system",
-        content:
-          "The following is the timeline of some events that have occurred in the game",
-      },
-      ...timeline,
-      {
-        role: "system",
-        content: "End of timeline",
-      },
-    ];
+    const timelineMessages = makeTimelineMessages(
+      timeline,
+      "The following is the timeline of some events that have occurred in the game"
+    );
 
     const actionMessages: ChatCompletionRequestMessage[] = [
       { role: "system", content: "Now, evaluate the following action" },
