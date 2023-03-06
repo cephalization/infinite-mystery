@@ -3,6 +3,7 @@ import { replacer } from "./replacer";
 import { z } from "zod";
 import { ChatCompletionRequestMessage } from "openai";
 import {
+  makeAgentMessages,
   makeSampleMessages,
   makeTimelineMessages,
   messageSchema,
@@ -112,14 +113,12 @@ Never give information to the player that they didn't find directly by exploring
           ]
         : [];
 
-    const messages = [
+    const messages = makeAgentMessages(
       systemMessage,
-      ...sampleMessages,
-      ...timelineMessages,
-      ...briefMessage,
-    ];
-
-    console.log(messages);
+      sampleMessages,
+      timelineMessages,
+      briefMessage
+    );
 
     const result = await handlers.chat(messages);
 
@@ -202,10 +201,14 @@ Only describe the outcome of the player's immediate action.
       action
     );
 
-    const result = await handlers.chat(
-      [systemMessage, ...sampleMessages, ...timelineMessages],
-      { temperature: 0.8 }
+    const messages = makeAgentMessages(
+      systemMessage,
+      sampleMessages,
+      timelineMessages,
+      []
     );
+
+    const result = await handlers.chat(messages, { temperature: 0.8 });
 
     console.log(result.data.choices, result.data.usage);
 
@@ -302,12 +305,14 @@ This is a description of {worldName}: {worldDescription}
       { role: "user", content: action },
     ];
 
-    const result = await handlers.chat([
+    const messages = makeAgentMessages(
       systemMessage,
-      ...sampleMessages,
-      ...timelineMessages,
-      ...actionMessages,
-    ]);
+      sampleMessages,
+      timelineMessages,
+      actionMessages
+    );
+
+    const result = await handlers.chat(messages);
 
     console.log(result.data.choices, result.data.usage);
     const resultText = result.data.choices.at(0)?.message?.content ?? "";
