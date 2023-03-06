@@ -99,7 +99,8 @@ export const sumMessageTokens = (messages: Message[]) =>
  * @param samples - list of samples
  * @param timeline - timeline of events that have occurred, as messages
  * @param action - actions that are occurring, as messages
- * @param maxTokens - max number of tokens, defaults to 4096 which is gpt-turbo's max
+ * @param maxTokens - max number of tokens, defaults to 3500. 4096 is gpt-turbo's max but 3500 is a safe number to account
+ *  for internal chatgpt prompt tokens
  * @param responseTokens - number of tokens to reserve for the response, defaults to 256
  * @returns list of messages that does not go over the max length of tokens
  */
@@ -128,14 +129,6 @@ export const makeAgentMessages = (
     sampleTokenLength +
     actionTokenLength +
     timelineTokenLength;
-
-  console.log({
-    introPromptTokenLength,
-    sampleTokenLength,
-    timelineTokenLength,
-    actionTokenLength,
-    tokens,
-  });
 
   // token length is fine, return everything
   if (tokens <= max) return [introMessage, ...samples, ...timeline, ...action];
