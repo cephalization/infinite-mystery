@@ -1,6 +1,8 @@
 import { serverConfig } from "env-config";
 import {
+  ChatCompletionRequestMessage,
   Configuration,
+  CreateChatCompletionRequest,
   CreateCompletionRequest,
   CreateImageRequest,
   OpenAIApi,
@@ -30,6 +32,11 @@ const defaultImageQuery: Omit<CreateImageRequest, "prompt"> = {
   size: "512x512",
 };
 
+const defaultChatQuery: Omit<CreateChatCompletionRequest, "messages"> = {
+  model: "gpt-3.5-turbo",
+  temperature: 0.5,
+};
+
 const createHandlers = (client: OpenAIApi) => ({
   completion: (
     prompt: string,
@@ -44,6 +51,15 @@ const createHandlers = (client: OpenAIApi) => ({
     client.createImage({
       prompt,
       ...defaultImageQuery,
+      ...options,
+    }),
+  chat: (
+    messages: ChatCompletionRequestMessage[],
+    options: Partial<CreateChatCompletionRequest> = {}
+  ) =>
+    client.createChatCompletion({
+      messages,
+      ...defaultChatQuery,
       ...options,
     }),
 });

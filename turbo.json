@@ -44,7 +44,11 @@
       ]
     },
     "test:w": {
-      "persistent": true
+      "cache": false,
+      "persistent": true,
+      "dependsOn": [
+        "^build"
+      ]
     },
     "lint": {
       "cache": false,

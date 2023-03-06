@@ -63,7 +63,10 @@ export type EvaluatorEventSchema = z.infer<typeof evaluatorEventSchema>;
  * Evaluator events, invalid player events should not be
  */
 export const processableSchema = z.discriminatedUnion("type", [
-  summaryEventSchema,
+  dmEventSchema,
+  playerEventSchema.merge(
+    z.object({ invalidAction: z.literal(false).optional().nullable() })
+  ),
 ]);
 
 export type ProcessableSchema = z.infer<typeof processableSchema>;
@@ -93,6 +96,17 @@ export const filterEventsByType = <S extends z.ZodTypeAny>(
     )
     .parse(events) as z.infer<S>[];
 
+const openAIMessageSchema = z.object({
+  content: z.string(),
+  role: z.union([
+    z.literal("system"),
+    z.literal("user"),
+    z.literal("assistant"),
+  ]),
+});
+
+type OpenAIMessage = z.infer<typeof openAIMessageSchema>;
+
 /**
  * Make an array of stringified events suitable for AI consumption
  * Events are automatically filtered to only those relevant by AI agents
@@ -100,7 +114,9 @@ export const filterEventsByType = <S extends z.ZodTypeAny>(
  * @param events - array of events to send to AI
  * @returns filtered events, mapped into string representation
  */
-export const makeTimelineFromEvents = (events: unknown[]) =>
+export const makeTimelineFromEvents = (events: unknown[]): OpenAIMessage[] =>
   filterEventsByType(events, processableSchema).map((e) =>
-    `${e.type}: ${e.content}`.trim()
+    e.type === "dm"
+      ? { content: e.content, role: "assistant" }
+      : { content: e.content, role: "user" }
   );
