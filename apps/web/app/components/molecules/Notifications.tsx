@@ -57,7 +57,9 @@ export const Notifications = ({
                 {renderedNotifications.length > 0 ? (
                   renderedNotifications
                 ) : (
-                  <p className="opacity-40 font-bold">All caught up!</p>
+                  <p className="opacity-40 text-xl font-bold w-full text-center pt-4">
+                    All caught up!
+                  </p>
                 )}
               </div>
               <div className="modal-action">
