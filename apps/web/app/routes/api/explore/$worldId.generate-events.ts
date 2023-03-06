@@ -7,7 +7,6 @@ import {
   evaluatorEventSchema,
   eventSchema,
   makeTimelineFromEvents,
-  summaryEventSchema,
 } from "~/events";
 import * as R from "remeda";
 import invariant from "tiny-invariant";
@@ -66,28 +65,20 @@ export const action = async ({ request }: ActionArgs) => {
       action,
     });
 
-    const parts =
-      aiEvent.data.choices
-        .at(0)
-        ?.text?.split("SUM:")
-        .filter((f) => f)
-        .map((f) => f.trim()) ?? [];
-    invariant(parts.length >= 2);
-    const [dm, sum] = parts;
+    if (!aiEvent) {
+      throw new Error("Could not get response from Explore Dungeon Master");
+    }
+
+    const dm = aiEvent;
 
     const newDMItem = dmEventSchema.parse({
       id: events.length + 1,
       type: "dm",
       content: dm.replace("- DM:", "").replace("- dm:", "") ?? "",
     });
-    const newSummaryItem = summaryEventSchema.parse({
-      id: events.length + 2,
-      type: "summary",
-      content: sum.replace("- Sum:", "").replace("- sum:", "") ?? "",
-    });
 
     return json({
-      events: [...events, newDMItem, newSummaryItem],
+      events: [...events, newDMItem],
       error: null,
     });
   } catch (e) {

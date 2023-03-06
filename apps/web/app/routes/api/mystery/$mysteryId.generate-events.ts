@@ -7,17 +7,22 @@ import {
   evaluatorEventSchema,
   eventSchema,
   makeTimelineFromEvents,
-  summaryEventSchema,
+  playerEventSchema,
 } from "~/events";
 import { getMysteryById } from "~/server/database/mystery.server";
 import invariant from "tiny-invariant";
-import * as R from "remeda";
 
+/** This endpoint takes a set of events and then returns a new set of events */
 export const action = async ({ request }: ActionArgs) => {
   try {
     const rJson = await request.json();
-    const { events, mysteryId, realismMode } = z
+    const { events, mysteryId, realismMode, action } = z
       .object({
+        action: z
+          .string()
+          .optional()
+          .nullable()
+          .transform((v) => (v === null ? undefined : v)),
         events: z.array(eventSchema),
         mysteryId: z.coerce.number(),
         realismMode: z.coerce.boolean().optional().default(true),
@@ -27,11 +32,8 @@ export const action = async ({ request }: ActionArgs) => {
     invariant(mystery !== null);
     const { World: world } = mystery;
     const timeline = makeTimelineFromEvents(events);
-    const action = `${
-      R.findLast(events, (e) => e.type === "player")?.content ?? ""
-    }`;
 
-    if (timeline.length && realismMode) {
+    if (timeline.length && action && realismMode) {
       const evaluation = await aiClient.agents.evaluator({
         worldName: world.name,
         worldDescription: world.description,
@@ -42,18 +44,20 @@ export const action = async ({ request }: ActionArgs) => {
         const { valid, reason } = evaluation;
 
         if (!valid) {
-          const newItem = evaluatorEventSchema.parse({
+          const newPlayerItem = playerEventSchema.parse({
             id: events.length + 1,
+            type: "player",
+            content: action,
+            invalidAction: true,
+          });
+          const newEvaluatorItem = evaluatorEventSchema.parse({
+            id: events.length + 2,
             type: "evaluator",
             content: reason ?? "You cannot do that.",
           });
 
           return json({
-            events: [
-              ...events.slice(0, -1),
-              { ...events.at(-1), invalidAction: true },
-              newItem,
-            ],
+            events: [...events, newPlayerItem, newEvaluatorItem],
             error: null,
           });
         }
@@ -69,32 +73,38 @@ export const action = async ({ request }: ActionArgs) => {
       action,
     });
 
-    if (aiEvent.status < 200 || aiEvent.status > 299) {
+    if (!aiEvent) {
       throw new Error("Bad ai response");
     }
 
-    const parts =
-      aiEvent.data.choices
-        .at(0)
-        ?.text?.split("SUM:")
-        .filter((f) => f)
-        .map((f) => f.trim()) ?? [];
-    invariant(parts.length >= 2);
-    const [dm, sum] = parts;
+    const dm = aiEvent;
+
+    if (action) {
+      const newPlayerItem = playerEventSchema.parse({
+        id: events.length + 1,
+        type: "player",
+        content: action,
+      });
+      const newDMItem = dmEventSchema.parse({
+        id: events.length + 2,
+        type: "dm",
+        content: dm.replace("- DM:", "").replace("- dm:", "") ?? "",
+      });
+
+      return json({
+        events: [...events, newPlayerItem, newDMItem],
+        error: null,
+      });
+    }
 
     const newDMItem = dmEventSchema.parse({
       id: events.length + 1,
       type: "dm",
       content: dm.replace("- DM:", "").replace("- dm:", "") ?? "",
     });
-    const newSummaryItem = summaryEventSchema.parse({
-      id: events.length + 2,
-      type: "summary",
-      content: sum.replace("- Sum:", "").replace("- sum:", "") ?? "",
-    });
 
     return json({
-      events: [...events, newDMItem, newSummaryItem],
+      events: [...events, newDMItem],
       error: null,
     });
   } catch (e) {
