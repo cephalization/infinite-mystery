@@ -15,7 +15,21 @@ type RouteProps = React.PropsWithChildren<{
 export const Route = forwardRef<HTMLDivElement, RouteProps>(
   ({ children, user }, ref) => {
     const location = useLocation();
-    const { notifications, removeNotification } = useNotifications([]);
+    const { notifications, removeNotification } = useNotifications([
+      {
+        content: (
+          <p>
+            This is a development version of Infinite Mystery and it will no
+            longer receive updates. Visit{" "}
+            <a className="link" href="https://infinitemystery.app">
+              https://infinitemystery.app
+            </a>{" "}
+            to keep playing!
+          </p>
+        ),
+        id: 0,
+      },
+    ]);
 
     return (
       <main className="p-1">
