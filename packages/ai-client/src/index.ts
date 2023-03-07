@@ -16,6 +16,7 @@ import {
   createMysteryDungeonMaster,
   createWorldImageGenerator,
   createmysteryImageGenerator,
+  createGuess,
 } from "./agents";
 
 const defaultCompletionQuery: CreateCompletionRequest = {
@@ -72,6 +73,7 @@ const createAgents = (handlers: Handlers) => ({
   evaluator: createEvaluator(handlers),
   worldImageGenerator: createWorldImageGenerator(handlers),
   mysteryImageGenerator: createmysteryImageGenerator(handlers),
+  guess: createGuess(handlers),
 });
 
 export const createAiClient = () => {
