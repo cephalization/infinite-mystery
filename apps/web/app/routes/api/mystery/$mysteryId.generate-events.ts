@@ -33,6 +33,54 @@ export const action = async ({ request }: ActionArgs) => {
     const { World: world } = mystery;
     const timeline = makeTimelineFromEvents(events);
 
+    if (action && action.toLowerCase().startsWith("guess:")) {
+      const guess = action.replace("guess:", "").trim();
+      const evaluation = await aiClient.agents.guess({
+        worldName: world.name,
+        worldDescription: world.description,
+        crime: mystery.crime,
+        action: guess,
+      });
+      if (evaluation) {
+        const { valid, reason } = evaluation;
+
+        if (!valid) {
+          const newPlayerItem = playerEventSchema.parse({
+            id: events.length + 1,
+            type: "player",
+            content: action,
+            invalidAction: true,
+          });
+          const newEvaluatorItem = evaluatorEventSchema.parse({
+            id: events.length + 2,
+            type: "evaluator",
+            content: reason ?? "Your guess is incorrect.",
+          });
+
+          return json({
+            events: [...events, newPlayerItem, newEvaluatorItem],
+            error: null,
+          });
+        } else {
+          const newPlayerItem = playerEventSchema.parse({
+            id: events.length + 1,
+            type: "player",
+            content: action,
+          });
+          const newEvaluatorItem = evaluatorEventSchema.parse({
+            id: events.length + 2,
+            type: "evaluator",
+            content: "You win!",
+          });
+
+          return json({
+            events: [...events, newPlayerItem, newEvaluatorItem],
+            error: null,
+          });
+        }
+      }
+    }
+
     if (timeline.length && action && realismMode) {
       const evaluation = await aiClient.agents.evaluator({
         worldName: world.name,
