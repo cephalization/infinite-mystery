@@ -235,20 +235,19 @@ export const createEvaluator =
     const systemPrompt = replacer({
       template:
         customTemplate ||
-        `
-You are assisting a Dungeon Master who is guiding a player through a scenario. 
-Your responsibility is to evaluate the validity of the action the player is 
-trying to take (this includes questions the player is asking the DM), considering the timeline of the player's
-actions so far, information about the world they are in, and their location
+        ` 
+You are an action realism evaluator. You are evaluating the realism of actions in a role-playing game.
+Your responsibility is to evaluate whether or not a particular action is physically possible for the player to do in that moment. 
+You will be given a timeline of the player's actions so far, information about the world they are in, and their location
 and current status.
+
+You MUST allow the player to do illegal actions, unexpected, inexplicable or violent things.
+The player can perform any action as long as it is physically possible for a human being to do it.
+The player may ask questions rather than take actions, always evaluate these as valid.
+
 You must start all evaluations with the word "Invalid." or the word "Valid.".
-ONLY EVALUATE THE ACTION THE PLAYER IS TRYING TO TAKE. DO NOT EVALUATE THE OUTCOME OF THE ACTION.
-
-The player is a human being. They do not have magical abilities or
-special powers of any kind.
-
-You can allow the player to do absurd, illegal, unexpected, inexplicable or violent things
-as long as it is within the realm of physics to perform.
+Only evaluate the physical realism of the action, DO NOT EVALUATE THE EMOTIONAL, LEGAL, OR ETHICAL REALISM OF THE ACTION.
+Only evaluate the realism of the action itself, rather than the consequences of the action.
 
 The player is in a world called: {worldName}
 This is a description of {worldName}: {worldDescription}
@@ -259,7 +258,7 @@ This is a description of {worldName}: {worldDescription}
     console.log("Evaluator prompt Length:", systemPrompt.length);
 
     const systemMessage: ChatCompletionRequestMessage = {
-      role: "system",
+      role: "user",
       content: systemPrompt,
     };
 
@@ -290,6 +289,19 @@ This is a description of {worldName}: {worldDescription}
             "Invalid. You cannot enter the presidential chambers because you are at home depot.",
         },
         { role: "user", content: "I suckerpunch Frederick" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I shoot Frederick in the leg" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I spit on the manager of the store" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I shoot the manager of the store" },
+        { role: "assistant", content: "Invalid. You do not have a gun." },
+        { role: "user", content: "I kick down the door" },
+        {
+          role: "assistant",
+          content: "Invalid. Both of your legs are currently broken.",
+        },
+        { role: "user", content: "I kick down the door" },
         { role: "assistant", content: "Valid." },
       ],
       "The following is a sample set of actions and evaluations"
@@ -459,4 +471,120 @@ This is your description of the image to go with the mystery:`,
     }
 
     return b64Image;
+  };
+
+const guessVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  crime: z.string(),
+  action: z.string(),
+});
+
+type guessVariables = z.infer<typeof guessVariablesSchema>;
+
+export const createGuess =
+  (handlers: Handlers) =>
+  async (variables: guessVariables, customTemplate?: string) => {
+    const { crime, action, ...validatedVariables } =
+      guessVariablesSchema.parse(variables);
+
+    const systemPrompt = replacer({
+      template:
+        customTemplate ||
+        ` 
+    You are an analytical decision maker who is responsible for evaluating whether or not a player has fully solved a mystery game. You will be given a description of a world, a crime that took place in that world, and a player's guess as to who did it and how.
+
+    You will use this information to decide whether the player knows who did the crime, how they did it, and why they did it. Their guess must include the who, the how, and the why. If the player doesn't have all three of these correct in their guess, tell them which parts they are still missing. If they do have all three correct, they win the game.
+
+    The player is in a world called: {worldName}
+    This is a description of {worldName}: {worldDescription}
+    `,
+      variables: validatedVariables,
+    });
+
+    console.log("Guess prompt Length:", systemPrompt.length);
+
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: systemPrompt,
+    };
+
+    // an array of chat completion request messages in the format of
+    // example action and evaluations from the prompt above
+    const sampleMessages = makeSampleMessages(
+      [
+        {
+          role: "user",
+          content: `crime: Mary stabbed her boyfriend Lucas after finding out he hid her mother's inheritance in the basement.
+    Mary stabbed him as he was coming up from the basement the night after her funeral.
+    guess: I think Mary stabbed Lucas because he stole her mom's money. She did it the night after the funeral.
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Correct",
+        },
+        {
+          role: "user",
+          content: `crime: George edited the database to include the universal kill command. He had access to the database because Mike gave it to him in return for 10 kilos of cocaine. George edited the database because he wanted to frame Commander Firebrand for killing everyone on the ship, as revenge for Firebrand's insult.
+
+    guess: I think George edited the database. He edited it because he wanted to kill everyone on the ship.
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Incorrect. You are missing the how and the why.",
+        },
+        {
+          role: "user",
+          content: `crime: King Polycarp made an under-the-table deal with the Shadow realm to get his wife back from the Pit of Despair. He went to the shadow realm to do the deal during the festival of 3 suns, while everyone was in prayer.
+
+    guess: I think the Royal Artificer is a secret agent of the Shadow Realm, his mind controlled by dark magic, and that's why he betrayed the kingdom by doing the deal.
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Incorrect. You are missing the who, the how, and the why.",
+        },
+      ],
+      "The following is a sample set of crimes, guesses, and their corresponding guess results"
+    );
+
+    const actionMessages: ChatCompletionRequestMessage[] = [
+      {
+        role: "system",
+        content: "Now, evaluate the following guess about the crime",
+      },
+      { role: "user", content: `crime: ${crime}\nguess: ${action}` },
+    ];
+
+    const messages = makeAgentMessages(
+      systemMessage,
+      sampleMessages,
+      [],
+      actionMessages
+    );
+
+    const result = await handlers.chat(messages);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+
+    if (!resultText) {
+      return null;
+    }
+
+    type OutputStructure = {
+      valid: boolean;
+      reason?: string;
+    };
+
+    const [valid, ...reason] = resultText.trim().split(".");
+
+    const output: OutputStructure = {
+      valid: valid.toLocaleLowerCase() === "correct",
+      reason: reason.join("."),
+    };
+
+    return output;
   };
