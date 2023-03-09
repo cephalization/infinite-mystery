@@ -1,11 +1,12 @@
 import { Form, Link, useSubmit } from "@remix-run/react";
 import clsx from "clsx";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePrevious } from "react-use";
-import { z } from "zod";
+import type { Command } from "~/components/molecules/CommandMenu";
+import { findClosestCommand } from "~/components/molecules/CommandMenu";
 import type { AnyEventSchema, PlayerEventSchema } from "~/events";
 import { ResetButton } from "../atoms/ResetButton";
-import { ArrowUpOnSquareStack } from "../icons/ArrowUpOnSquareStack";
+import { ArrowUpOnSquareStackIcon } from "../icons/ArrowUpOnSquareStackIcon";
 import { ActionInput } from "./ActionInput";
 import { EventLog } from "./EventLog";
 
@@ -20,6 +21,30 @@ type EventFormProps = {
   saveUrl?: string;
   status?: React.ReactNode;
 };
+
+const commands: Command[] = [
+  {
+    action() {
+      console.log("test");
+    },
+    name: "test",
+    description: "test command",
+  },
+  {
+    action() {
+      console.log("guess");
+    },
+    name: "guess",
+    description: "guess command (stub)",
+  },
+  {
+    action() {
+      console.log("export");
+    },
+    name: "export",
+    description: "export command (stub)",
+  },
+];
 
 export const EventForm = ({
   loading,
@@ -36,8 +61,27 @@ export const EventForm = ({
   const formRef = useRef<HTMLFormElement>(null);
   const submit = useSubmit();
   const prevLoading = usePrevious(loading);
+  const [inputValue, setInputValue] = useState("");
+  const [commandMenuOpen, setCommandMenuOpen] = useState(false);
+  const closestCommand = findClosestCommand(inputValue, commands);
+  const matchedCommand = findClosestCommand(inputValue, commands, true);
 
   const inputRef = focusRef || maybeInputRef;
+
+  const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const newValue = e.target.value;
+    setInputValue(newValue);
+
+    if (!newValue) {
+      setCommandMenuOpen(false);
+    }
+  };
+
+  const handleSelectCommand = (command: Command) => {
+    setInputValue("");
+    setCommandMenuOpen(false);
+    command.action();
+  };
 
   const submitFn = (e: HTMLFormElement) => {
     if (onSubmit) {
@@ -62,8 +106,21 @@ export const EventForm = ({
 
     if (loading) return;
 
-    const form = new FormData(e.currentTarget);
-    const input = z.coerce.string().parse(form.get("action-input"));
+    const input = inputValue.trim();
+
+    if (input === "/") {
+      return;
+    }
+
+    if (commandMenuOpen && closestCommand) {
+      handleSelectCommand(closestCommand);
+      return;
+    }
+
+    if (matchedCommand) {
+      handleSelectCommand(matchedCommand);
+      return;
+    }
 
     if (input) {
       addOptimisticEvent?.({
@@ -74,7 +131,7 @@ export const EventForm = ({
       submitFn(e.currentTarget);
 
       if (inputRef.current) {
-        inputRef.current.value = "";
+        setInputValue("");
         // HACK
         // blur the input so that safari doesn't hijack scroll
         inputRef.current.blur();
@@ -90,6 +147,16 @@ export const EventForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, prevLoading]);
+
+  useEffect(() => {
+    if (inputValue.startsWith("/")) {
+      setCommandMenuOpen(true);
+    }
+
+    if (!inputValue) {
+      setCommandMenuOpen(false);
+    }
+  }, [inputValue]);
 
   return (
     <section className={clsx("flex flex-col gap-2", className)}>
@@ -121,7 +188,7 @@ export const EventForm = ({
               )}
               aria-disabled={loading}
             >
-              <ArrowUpOnSquareStack />
+              <ArrowUpOnSquareStackIcon />
               Save
             </Link>
           </div>
@@ -130,7 +197,17 @@ export const EventForm = ({
       </div>
       <EventLog events={events} loading={loading} />
       <Form onSubmit={handleSubmit} ref={formRef}>
-        <ActionInput loading={loading} disabled={loading} ref={inputRef} />
+        <ActionInput
+          loading={loading}
+          disabled={loading}
+          ref={inputRef}
+          value={inputValue}
+          onChange={handleInputChange}
+          setCommandMenuOpen={setCommandMenuOpen}
+          commandMenuOpen={commandMenuOpen}
+          commands={commands}
+          onSelectCommand={handleSelectCommand}
+        />
       </Form>
     </section>
   );
