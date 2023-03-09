@@ -473,6 +473,62 @@ This is your description of the image to go with the mystery:`,
     return b64Image;
   };
 
+const crimeExpanderVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  mysteryTitle: z.string(),
+  crime: z.string(),
+});
+
+type crimeExpanderVariables = z.infer<typeof crimeExpanderVariablesSchema>;
+
+export const createCrimeExpander =
+  (handlers: Handlers) =>
+  async (variables: crimeExpanderVariables, customTemplate?: string) => {
+    const { ...validatedVariables } =
+      crimeExpanderVariablesSchema.parse(variables);
+
+    const systemPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+          You will be given a description of a world, and a crime that took place in that world. You will use that information to write a creative and clever set of characters and clues about the crime.
+          
+          First, you will write a list of 5-10 characters that are related to the crime. They will include the victim, the perpetrator, and any witnesses, suspects, or other people involved in the crime. Each character should include a description of their personality and their role in the world. This list SHOULD NOT include information that would give away the identity of the perpetrator.
+  
+          Next, you will write a list of 20-30 clues, some of which will point to the perpetrator, and some of which will be red herrings. These clues can be pieces of physical evidence, witness statements, character behaviors, or other information that would be useful to a detective. Each clue should be no more than two sentences long. Taken as a whole, the clues should point to the who, how, and why of the crime, but they should not make the solution obvious when taken individually.
+  
+          This is the name of the world: {worldName}
+          This is a description of the world: 
+          {worldDescription}
+          This is the title of the mystery: {mysteryTitle}
+          This is a description of the crime:
+          {crime}
+          
+  `,
+      variables: validatedVariables,
+    });
+
+    console.log("Crime Expander Length:", systemPrompt.length);
+
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: systemPrompt,
+    };
+    const result = await handlers.chat([systemMessage]);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+
+    if (!resultText) {
+      return null;
+    }
+
+    const output = resultText.trim();
+
+    return output;
+  };
+
 const guessVariablesSchema = z.object({
   worldName: z.string(),
   worldDescription: z.string(),

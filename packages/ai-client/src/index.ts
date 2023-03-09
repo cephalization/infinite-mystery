@@ -17,6 +17,7 @@ import {
   createWorldImageGenerator,
   createmysteryImageGenerator,
   createGuess,
+  createCrimeExpander,
 } from "./agents";
 
 const defaultCompletionQuery: CreateCompletionRequest = {
@@ -74,6 +75,7 @@ const createAgents = (handlers: Handlers) => ({
   worldImageGenerator: createWorldImageGenerator(handlers),
   mysteryImageGenerator: createmysteryImageGenerator(handlers),
   guess: createGuess(handlers),
+  crimeExpander: createCrimeExpander(handlers),
 });
 
 export const createAiClient = () => {
