@@ -494,9 +494,13 @@ export const createCrimeExpander =
         `
           You will be given a description of a world, and a crime that took place in that world. You will use that information to write a creative and clever set of characters and clues about the crime.
           
-          First, you will write a list of 5-10 characters that are related to the crime. They will include the victim, the perpetrator, and any witnesses, suspects, or other people involved in the crime. Each character should include a description of their personality and their role in the world. This list SHOULD NOT include information that would give away the identity of the perpetrator.
-  
-          Next, you will write a list of 20-30 clues, some of which will point to the perpetrator, and some of which will be red herrings. These clues can be pieces of physical evidence, witness statements, character behaviors, or other information that would be useful to a detective. Each clue should be no more than two sentences long. Taken as a whole, the clues should point to the who, how, and why of the crime, but they should not make the solution obvious when taken individually.
+          First, you will write a list of 10 characters that are related to the crime. They will include the victim, the perpetrator, witnesses, suspects, or other people involved in the crime. Each character should include their name, a brief description of their personality, and their role in the world. This list SHOULD NOT include information that would give away the identity of the perpetrator.
+
+          Next, write a list of the 5 characters who are suspects of the crime. For each suspect, include a possible motive or oppurtunity they had to commit the crime.
+
+          Next, for each suspect you will write a list of 5 clues that seems to indicate that suspect was the perpetrator. These clues can be pieces of physical evidence, witness statements, character behaviors, or other information that would be useful to a detective. Each clue should be no more than two sentences long.
+
+          Taken as a whole, the clues should point to the correct who, how, and why of the crime, but they should not make the solution obvious when taken individually.
   
           This is the name of the world: {worldName}
           This is a description of the world: 
@@ -510,6 +514,62 @@ export const createCrimeExpander =
     });
 
     console.log("Crime Expander Length:", systemPrompt.length);
+
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: systemPrompt,
+    };
+    const result = await handlers.chat([systemMessage]);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+
+    if (!resultText) {
+      return null;
+    }
+
+    const output = resultText.trim();
+
+    return output;
+  };
+
+const characterCreatorVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  mysteryTitle: z.string(),
+  crime: z.string(),
+});
+
+type characterCreatorVariables = z.infer<typeof crimeExpanderVariablesSchema>;
+
+export const createCharacterCreator =
+  (handlers: Handlers) =>
+  async (variables: characterCreatorVariables, customTemplate?: string) => {
+    const { ...validatedVariables } =
+      characterCreatorVariablesSchema.parse(variables);
+
+    const systemPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+            You will be given a description of a world, and a crime that took place in that world. You will use that information to write a creative and clever set of characters and clues about the crime.
+            
+            First, write a list of 10 characters that are related to the crime. They will include the victim, the perpetrator, witnesses, suspects, or other people involved in the crime. Each character should include their name, a description of their personality, and their role in the world.
+  
+            Next, write a list of 3 characters who are suspects of the crime, which includes the true culprit. For each suspect, write a few sentences about the motive or oppurtunity they had to commit the crime. Then, for each suspect, write 5 clues about that suspect that point to them as the culprit. Then, for each suspect, write two clues that exonorate that character from the crime, but if that suspect is the true perpetrator, leave them blank. These clues can be pieces of physical evidence, witness statements (be sure to include which of the characters witnessed it), character behaviors, or other information that would be useful to a detective. Each clue should be no more than two sentences long.
+    
+            This is the name of the world: {worldName}
+            This is a description of the world: 
+            {worldDescription}
+            This is the title of the mystery: {mysteryTitle}
+            This is a description of the crime:
+            {crime}
+            
+    `,
+      variables: validatedVariables,
+    });
+
+    console.log("Character Creator Length:", systemPrompt.length);
 
     const systemMessage: ChatCompletionRequestMessage = {
       role: "user",
