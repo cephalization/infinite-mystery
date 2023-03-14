@@ -1,6 +1,7 @@
 import { Form, Link, useSubmit } from "@remix-run/react";
 import clsx from "clsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { usePrevious } from "react-use";
 import type { Command } from "~/components/molecules/CommandMenu";
 import { findClosestCommand } from "~/components/molecules/CommandMenu";
@@ -43,14 +44,18 @@ export const EventForm = ({
     () => [
       {
         action() {
-          setInputValue((iv) => {
-            const parts = iv.split("");
-            if (parts.length === 1) {
-              return "/solve";
-            }
+          flushSync(() => {
+            setInputValue((iv) => {
+              const parts = iv.split("");
+              if (parts.length === 1) {
+                return "/solve ";
+              }
 
-            return `/solve ${parts.slice(1).join(" ")}`;
+              return `/solve ${parts.slice(1).join(" ")}`;
+            });
           });
+          setCommandMenuOpen(false);
+          maybeInputRef?.current?.focus();
         },
         name: "solve",
         description:
@@ -147,7 +152,7 @@ export const EventForm = ({
   }, [loading, prevLoading]);
 
   useEffect(() => {
-    if (inputValue.startsWith("/")) {
+    if (inputValue === "/") {
       setCommandMenuOpen(true);
     }
 
