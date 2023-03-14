@@ -102,7 +102,7 @@ export const CommandMenu = ({
                 <div className="flex flex-col gap-1 h-full w-full items-baseline">
                   <div>{command.name}</div>
                   {command.description && (
-                    <div className="opacity-50 flex flex-wrap w-full">
+                    <div className="opacity-50 flex flex-wrap w-full text-left">
                       {command.description}
                     </div>
                   )}

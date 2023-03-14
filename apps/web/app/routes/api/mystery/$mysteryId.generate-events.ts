@@ -6,6 +6,7 @@ import {
   dmEventSchema,
   evaluatorEventSchema,
   eventSchema,
+  guessEventSchema,
   makeTimelineFromEvents,
   playerEventSchema,
 } from "~/events";
@@ -33,8 +34,8 @@ export const action = async ({ request }: ActionArgs) => {
     const { World: world } = mystery;
     const timeline = makeTimelineFromEvents(events);
 
-    if (action && action.toLowerCase().startsWith("guess:")) {
-      const guess = action.replace("guess:", "").trim();
+    if (action && action.toLowerCase().startsWith("/solve")) {
+      const guess = action.replace("/solve", "").trim();
       const evaluation = await aiClient.agents.guess({
         worldName: world.name,
         worldDescription: world.description,
@@ -49,16 +50,18 @@ export const action = async ({ request }: ActionArgs) => {
             id: events.length + 1,
             type: "player",
             content: action,
-            invalidAction: true,
+            guess: true,
+            invalidGuess: true,
           });
-          const newEvaluatorItem = evaluatorEventSchema.parse({
+          const newGuessItem = guessEventSchema.parse({
             id: events.length + 2,
-            type: "evaluator",
+            type: "guess",
             content: reason ?? "Your guess is incorrect.",
+            invalidGuess: true,
           });
 
           return json({
-            events: [...events, newPlayerItem, newEvaluatorItem],
+            events: [...events, newPlayerItem, newGuessItem],
             error: null,
           });
         } else {
@@ -66,15 +69,16 @@ export const action = async ({ request }: ActionArgs) => {
             id: events.length + 1,
             type: "player",
             content: action,
+            guess: true,
           });
-          const newEvaluatorItem = evaluatorEventSchema.parse({
+          const newGuessItem = guessEventSchema.parse({
             id: events.length + 2,
-            type: "evaluator",
+            type: "guess",
             content: "You win!",
           });
 
           return json({
-            events: [...events, newPlayerItem, newEvaluatorItem],
+            events: [...events, newPlayerItem, newGuessItem],
             error: null,
           });
         }

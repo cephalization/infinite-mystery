@@ -1,6 +1,6 @@
 import { Form, Link, useSubmit } from "@remix-run/react";
 import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePrevious } from "react-use";
 import type { Command } from "~/components/molecules/CommandMenu";
 import { findClosestCommand } from "~/components/molecules/CommandMenu";
@@ -22,30 +22,6 @@ type EventFormProps = {
   status?: React.ReactNode;
 };
 
-const commands: Command[] = [
-  {
-    action() {
-      console.log("test");
-    },
-    name: "test",
-    description: "test command",
-  },
-  {
-    action() {
-      console.log("guess");
-    },
-    name: "guess",
-    description: "guess command (stub)",
-  },
-  {
-    action() {
-      console.log("export");
-    },
-    name: "export",
-    description: "export command (stub)",
-  },
-];
-
 export const EventForm = ({
   loading,
   addOptimisticEvent,
@@ -63,6 +39,26 @@ export const EventForm = ({
   const prevLoading = usePrevious(loading);
   const [inputValue, setInputValue] = useState("");
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
+  const commands: Command[] = useMemo(
+    () => [
+      {
+        action() {
+          setInputValue((iv) => {
+            const parts = iv.split("");
+            if (parts.length === 1) {
+              return "/solve";
+            }
+
+            return `/solve ${parts.slice(1).join(" ")}`;
+          });
+        },
+        name: "solve",
+        description:
+          "Solve the mystery by answering the who, what, and why of the mystery.",
+      },
+    ],
+    []
+  );
   const closestCommand = findClosestCommand(inputValue, commands);
   const matchedCommand = findClosestCommand(inputValue, commands, true);
 
@@ -127,6 +123,8 @@ export const EventForm = ({
         type: "player",
         content: input,
         invalidAction: false,
+        guess: false,
+        invalidGuess: false,
       });
       submitFn(e.currentTarget);
 

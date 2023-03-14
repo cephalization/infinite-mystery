@@ -6,7 +6,8 @@ export type AnyEventSchema =
   | PlayerEventSchema
   | DMEventSchema
   | EvaluatorEventSchema
-  | SummaryEventSchema;
+  | SummaryEventSchema
+  | GuessEventSchema;
 
 export const eventSchema = z
   .object({
@@ -15,6 +16,7 @@ export const eventSchema = z
       z.literal("dm"),
       z.literal("evaluator"),
       z.literal("summary"),
+      z.literal("guess"),
     ]),
     content: z.string(),
     id: z.coerce.number(),
@@ -27,10 +29,21 @@ export const playerEventSchema = eventSchema.merge(
   z.object({
     type: z.literal("player"),
     invalidAction: z.boolean().optional().nullable().default(false),
+    guess: z.boolean().optional().nullable().default(false),
+    invalidGuess: z.boolean().optional().nullable().default(false),
   })
 );
 
 export type PlayerEventSchema = z.infer<typeof playerEventSchema>;
+
+export const guessEventSchema = eventSchema.merge(
+  z.object({
+    type: z.literal("guess"),
+    invalidGuess: z.boolean().optional().nullable().default(false),
+  })
+);
+
+export type GuessEventSchema = z.infer<typeof guessEventSchema>;
 
 export const dmEventSchema = eventSchema.merge(
   z.object({
@@ -65,7 +78,11 @@ export type EvaluatorEventSchema = z.infer<typeof evaluatorEventSchema>;
 export const processableSchema = z.discriminatedUnion("type", [
   dmEventSchema,
   playerEventSchema.merge(
-    z.object({ invalidAction: z.literal(false).optional().nullable() })
+    z.object({
+      invalidAction: z.literal(false).optional().nullable(),
+      invalidGuess: z.literal(false).optional().nullable(),
+      guess: z.literal(false).optional().nullable(),
+    })
   ),
 ]);
 

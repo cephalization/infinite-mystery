@@ -609,8 +609,8 @@ export const createGuess =
         customTemplate ||
         ` 
     You are an analytical decision maker who is responsible for evaluating whether or not a player has fully solved a mystery game. You will be given a description of a world, a crime that took place in that world, and a player's guess as to who did it and how.
-
     You will use this information to decide whether the player knows who did the crime, how they did it, and why they did it. Their guess must include the who, the how, and the why. If the player doesn't have all three of these correct in their guess, tell them which parts they are still missing. If they do have all three correct, they win the game.
+    Always begin your evaluation with the word "Incorrect." or "Correct.".
 
     The player is in a world called: {worldName}
     This is a description of {worldName}: {worldDescription}

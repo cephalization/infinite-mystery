@@ -5,8 +5,10 @@ import type {
   AnyEventSchema,
   DMEventSchema,
   EvaluatorEventSchema,
+  GuessEventSchema,
   PlayerEventSchema,
 } from "~/events";
+import { guessEventSchema } from "~/events";
 import {
   dmEventSchema,
   evaluatorEventSchema,
@@ -26,7 +28,9 @@ const PlayerEvent = ({ event }: { event: PlayerEventSchema }) => {
     <li
       className={clsx(
         "text-base-content py-1",
-        event.invalidAction && "text-error"
+        event.guess && !event.invalidGuess
+          ? "text-success"
+          : (event.invalidAction || event.invalidGuess) && "text-error"
       )}
     >
       {event.content}
@@ -41,6 +45,19 @@ const DMEvent = ({ event }: { event: DMEventSchema }) => {
 const EvaluatorEvent = ({ event }: { event: EvaluatorEventSchema }) => {
   return (
     <li className="text-error border-l-4 pl-2 border-error">{event.content}</li>
+  );
+};
+
+const GuessEvent = ({ event }: { event: GuessEventSchema }) => {
+  return (
+    <li
+      className={clsx(
+        "py-1",
+        event.invalidGuess ? "text-error" : "text-success"
+      )}
+    >
+      {event.content}
+    </li>
   );
 };
 
@@ -66,6 +83,13 @@ const matchEvent = <E extends AnyEventSchema>(evt: E) => {
     );
 
     return _EvaluatorEvent;
+  }
+
+  const maybeGuessEvent = guessEventSchema.safeParse(evt);
+  if (maybeGuessEvent.success) {
+    const _GuessEvent = () => <GuessEvent event={maybeGuessEvent.data} />;
+
+    return _GuessEvent;
   }
 
   return () => null;

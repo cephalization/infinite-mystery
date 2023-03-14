@@ -139,7 +139,8 @@ export const loader = async ({ params, request }: LoaderArgs) => {
       initialized,
     });
   } catch (e) {
-    return redirect("/mystery");
+    console.error(e);
+    return redirect("/explore#mysteries");
   }
 };
 
