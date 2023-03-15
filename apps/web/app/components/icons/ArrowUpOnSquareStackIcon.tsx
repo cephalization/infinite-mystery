@@ -1,7 +1,10 @@
 import clsx from "clsx";
 import type { IconProps } from "./types";
 
-export const ArrowUpOnSquareStack = ({ className, ...props }: IconProps) => {
+export const ArrowUpOnSquareStackIcon = ({
+  className,
+  ...props
+}: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

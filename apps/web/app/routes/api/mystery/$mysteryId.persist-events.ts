@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   dmEventSchema,
   evaluatorEventSchema,
+  guessEventSchema,
   makeTimelineFromEvents,
   playerEventSchema,
 } from "~/events";
@@ -61,6 +62,79 @@ export const action = async ({ request }: ActionArgs) => {
 
     const { World: world } = mystery;
     const timeline = makeTimelineFromEvents(events);
+
+    if (playerInput && playerInput.toLowerCase().startsWith("/solve")) {
+      const guess = playerInput.replace("/solve", "").trim();
+      const evaluation = await aiClient.agents.guess({
+        worldName: world.name,
+        worldDescription: world.description,
+        crime: mystery.crime,
+        action: guess,
+      });
+      if (evaluation) {
+        const { valid, reason } = evaluation;
+
+        if (!valid) {
+          const newPlayerItem = playerEventSchema
+            .merge(z.object({ id: z.undefined() }))
+            .parse({
+              type: "player",
+              content: playerInput,
+              guess: true,
+              invalidGuess: true,
+            });
+          const newGuessItem = guessEventSchema
+            .merge(z.object({ id: z.undefined() }))
+            .parse({
+              type: "guess",
+              content: reason ?? "Your guess is incorrect.",
+              invalidGuess: true,
+            });
+
+          await addEventToMysteryEventSession({
+            input: newPlayerItem,
+            mysteryEventSessionId: mysterySessionId,
+          });
+          await addEventToMysteryEventSession({
+            input: newGuessItem,
+            mysteryEventSessionId: mysterySessionId,
+          });
+
+          return json({
+            success: true,
+            error: null,
+          });
+        } else {
+          const newPlayerItem = playerEventSchema
+            .merge(z.object({ id: z.undefined() }))
+            .parse({
+              type: "player",
+              content: playerInput,
+              guess: true,
+            });
+          const newGuessItem = guessEventSchema
+            .merge(z.object({ id: z.undefined() }))
+            .parse({
+              type: "guess",
+              content: "You win!",
+            });
+
+          await addEventToMysteryEventSession({
+            input: newPlayerItem,
+            mysteryEventSessionId: mysterySessionId,
+          });
+          await addEventToMysteryEventSession({
+            input: newGuessItem,
+            mysteryEventSessionId: mysterySessionId,
+          });
+
+          return json({
+            success: true,
+            error: null,
+          });
+        }
+      }
+    }
 
     if (timeline.length && realismMode) {
       const evaluation = await aiClient.agents.evaluator({

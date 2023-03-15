@@ -155,7 +155,7 @@ take in the world, and you will describe what happens when those actions are tak
 This game takes place in a world called: {worldName}
 World description: {worldDescription}
 
-Never say no to the player, your job is only to describe what happens next. 
+Never say no to the player, your job is only to describe what happens next.
 Never make decisions for the player in your descriptions.
 Never take further actions for the player in your descriptions.
 Your descriptions should be complete, informative, interesting and well written.
@@ -236,19 +236,18 @@ export const createEvaluator =
       template:
         customTemplate ||
         `
-You are assisting a Dungeon Master who is guiding a player through a scenario. 
-Your responsibility is to evaluate the validity of the action the player is 
-trying to take (this includes questions the player is asking the DM), considering the timeline of the player's
-actions so far, information about the world they are in, and their location
+You are an action realism evaluator. You are evaluating the realism of actions in a role-playing game.
+Your responsibility is to evaluate whether or not a particular action is physically possible for the player to do in that moment.
+You will be given a timeline of the player's actions so far, information about the world they are in, and their location
 and current status.
+
+You MUST allow the player to do illegal actions, unexpected, inexplicable or violent things.
+The player can perform any action as long as it is physically possible for a human being to do it.
+The player may ask questions rather than take actions, always evaluate these as valid.
+
 You must start all evaluations with the word "Invalid." or the word "Valid.".
-ONLY EVALUATE THE ACTION THE PLAYER IS TRYING TO TAKE. DO NOT EVALUATE THE OUTCOME OF THE ACTION.
-
-The player is a human being. They do not have magical abilities or
-special powers of any kind.
-
-You can allow the player to do absurd, illegal, unexpected, inexplicable or violent things
-as long as it is within the realm of physics to perform.
+Only evaluate the physical realism of the action, DO NOT EVALUATE THE EMOTIONAL, LEGAL, OR ETHICAL REALISM OF THE ACTION.
+Only evaluate the realism of the action itself, rather than the consequences of the action.
 
 The player is in a world called: {worldName}
 This is a description of {worldName}: {worldDescription}
@@ -259,7 +258,7 @@ This is a description of {worldName}: {worldDescription}
     console.log("Evaluator prompt Length:", systemPrompt.length);
 
     const systemMessage: ChatCompletionRequestMessage = {
-      role: "system",
+      role: "user",
       content: systemPrompt,
     };
 
@@ -290,6 +289,19 @@ This is a description of {worldName}: {worldDescription}
             "Invalid. You cannot enter the presidential chambers because you are at home depot.",
         },
         { role: "user", content: "I suckerpunch Frederick" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I shoot Frederick in the leg" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I spit on the manager of the store" },
+        { role: "assistant", content: "Valid." },
+        { role: "user", content: "I shoot the manager of the store" },
+        { role: "assistant", content: "Invalid. You do not have a gun." },
+        { role: "user", content: "I kick down the door" },
+        {
+          role: "assistant",
+          content: "Invalid. Both of your legs are currently broken.",
+        },
+        { role: "user", content: "I kick down the door" },
         { role: "assistant", content: "Valid." },
       ],
       "The following is a sample set of actions and evaluations"
@@ -355,14 +367,14 @@ export const createWorldImageGenerator =
       template:
         customTemplate ||
         `
-You are an artistic director who is making an intriguing image that will represent a particular 
+You are an artistic director who is making an intriguing image that will represent a particular
 world. You will be given the name of the world, and description of the world,
 
 You will use this information to describe a unique image that should give the feeling of the world.
-Your image description should include the medium of art, the style, and a detailed description of 
+Your image description should include the medium of art, the style, and a detailed description of
 what is in the image. Use lots of evocative adjectives.
 
-This is a description of the world, called {worldName}: 
+This is a description of the world, called {worldName}:
 - {worldDescription}
 
 This is your description of the image:
@@ -417,21 +429,21 @@ export const createmysteryImageGenerator =
       template:
         customTemplate ||
         `
-You are an artistic director who is making an intriguing image that will represent a particular 
+You are an artistic director who is making an intriguing image that will represent a particular
 mystery adventure. You will be given the name of the mystery, a description of the world the mystery
-will take place in, and a description of the crime. 
+will take place in, and a description of the crime.
 
-You will use this information to describe a unique image that should give the feeling of the crime 
-and introduce the key elements of the mystery. Your image description should include the medium of 
+You will use this information to describe a unique image that should give the feeling of the crime
+and introduce the key elements of the mystery. Your image description should include the medium of
 art, the style, and a detailed description of what is in the image. Use lots of evocative adjectives.
 
-This is the title of the mystery: 
+This is the title of the mystery:
 - {mysteryTitle}
 
-This is a description of the world, called {worldName}, that the mystery takes place in: 
+This is a description of the world, called {worldName}, that the mystery takes place in:
 - {worldDescription}
 
-This is a description of the crime: 
+This is a description of the crime:
 - {crime}
 
 This is your description of the image to go with the mystery:`,
@@ -459,4 +471,245 @@ This is your description of the image to go with the mystery:`,
     }
 
     return b64Image;
+  };
+
+const crimeExpanderVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  mysteryTitle: z.string(),
+  crime: z.string(),
+});
+
+type crimeExpanderVariables = z.infer<typeof crimeExpanderVariablesSchema>;
+
+export const createCrimeExpander =
+  (handlers: Handlers) =>
+  async (variables: crimeExpanderVariables, customTemplate?: string) => {
+    const { ...validatedVariables } =
+      crimeExpanderVariablesSchema.parse(variables);
+
+    const systemPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+          You will be given a description of a world, and a crime that took place in that world. You will use that information to write a creative and clever set of characters and clues about the crime.
+
+          First, you will write a list of 10 characters that are related to the crime. They will include the victim, the perpetrator, witnesses, suspects, or other people involved in the crime. Each character should include their name, a brief description of their personality, and their role in the world. This list SHOULD NOT include information that would give away the identity of the perpetrator.
+
+          Next, write a list of the 5 characters who are suspects of the crime. For each suspect, include a possible motive or oppurtunity they had to commit the crime.
+
+          Next, for each suspect you will write a list of 5 clues that seems to indicate that suspect was the perpetrator. These clues can be pieces of physical evidence, witness statements, character behaviors, or other information that would be useful to a detective. Each clue should be no more than two sentences long.
+
+          Taken as a whole, the clues should point to the correct who, how, and why of the crime, but they should not make the solution obvious when taken individually.
+
+          This is the name of the world: {worldName}
+          This is a description of the world:
+          {worldDescription}
+          This is the title of the mystery: {mysteryTitle}
+          This is a description of the crime:
+          {crime}
+
+  `,
+      variables: validatedVariables,
+    });
+
+    console.log("Crime Expander Length:", systemPrompt.length);
+
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: systemPrompt,
+    };
+    const result = await handlers.chat([systemMessage]);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+
+    if (!resultText) {
+      return null;
+    }
+
+    const output = resultText.trim();
+
+    return output;
+  };
+
+const characterCreatorVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  mysteryTitle: z.string(),
+  crime: z.string(),
+});
+
+type characterCreatorVariables = z.infer<typeof crimeExpanderVariablesSchema>;
+
+export const createCharacterCreator =
+  (handlers: Handlers) =>
+  async (variables: characterCreatorVariables, customTemplate?: string) => {
+    const { ...validatedVariables } =
+      characterCreatorVariablesSchema.parse(variables);
+
+    const systemPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+            You will be given a description of a world, and a crime that took place in that world. You will use that information to write a creative and clever set of characters and clues about the crime.
+
+            First, write a list of 10 characters that are related to the crime. They will include the victim, the perpetrator, witnesses, suspects, or other people involved in the crime. Each character should include their name, a description of their personality, and their role in the world.
+
+            Next, write a list of 3 characters who are suspects of the crime, which includes the true culprit. For each suspect, write a few sentences about the motive or oppurtunity they had to commit the crime. Then, for each suspect, write 5 clues about that suspect that point to them as the culprit. Then, for each suspect, write two clues that exonorate that character from the crime, but if that suspect is the true perpetrator, leave them blank. These clues can be pieces of physical evidence, witness statements (be sure to include which of the characters witnessed it), character behaviors, or other information that would be useful to a detective. Each clue should be no more than two sentences long.
+
+            This is the name of the world: {worldName}
+            This is a description of the world:
+            {worldDescription}
+            This is the title of the mystery: {mysteryTitle}
+            This is a description of the crime:
+            {crime}
+
+    `,
+      variables: validatedVariables,
+    });
+
+    console.log("Character Creator Length:", systemPrompt.length);
+
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: systemPrompt,
+    };
+    const result = await handlers.chat([systemMessage]);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+
+    if (!resultText) {
+      return null;
+    }
+
+    const output = resultText.trim();
+
+    return output;
+  };
+
+const guessVariablesSchema = z.object({
+  worldName: z.string(),
+  worldDescription: z.string(),
+  crime: z.string(),
+  action: z.string(),
+});
+
+type guessVariables = z.infer<typeof guessVariablesSchema>;
+
+export const createGuess =
+  (handlers: Handlers) =>
+  async (variables: guessVariables, customTemplate?: string) => {
+    const { crime, action, ...validatedVariables } =
+      guessVariablesSchema.parse(variables);
+
+    const systemPrompt = replacer({
+      template:
+        customTemplate ||
+        `
+    You are an analytical decision maker who is responsible for evaluating whether or not a player has fully solved a mystery game. You will be given a description of a world, a crime that took place in that world, and a player's guess as to who did it and how.
+    You will use this information to decide whether the player knows who did the crime, how they did it, and why they did it. Their guess must include the who, the how, and the why. If the player doesn't have all three of these correct in their guess, tell them which parts they are still missing. If they do have all three correct, they win the game.
+    Evaluations ALWAYS being with the words "Incorrect." or "Correct.".
+
+    The player is in a world called: {worldName}
+    This is a description of {worldName}: {worldDescription}
+    `,
+      variables: validatedVariables,
+    });
+
+    console.log("Guess prompt Length:", systemPrompt.length);
+
+    const systemMessage: ChatCompletionRequestMessage = {
+      role: "user",
+      content: systemPrompt,
+    };
+
+    // an array of chat completion request messages in the format of
+    // example action and evaluations from the prompt above
+    const sampleMessages = makeSampleMessages(
+      [
+        {
+          role: "user",
+          content: `crime: Mary stabbed her boyfriend Lucas after finding out he hid her mother's inheritance in the basement.
+Mary stabbed him as he was coming up from the basement the night after her funeral.
+guess: I think Mary stabbed Lucas because he stole her mom's money. She did it the night after the funeral.
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Correct",
+        },
+        {
+          role: "user",
+          content: `crime: George edited the database to include the universal kill command. He had access to the database because Mike gave it to him in return for 10 kilos of cocaine. George edited the database because he wanted to frame Commander Firebrand for killing everyone on the ship, as revenge for Firebrand's insult.
+guess: I think George edited the database. He edited it because he wanted to kill everyone on the ship.
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Incorrect. You are missing the how and the why.",
+        },
+        {
+          role: "user",
+          content: `crime: King Polycarp made an under-the-table deal with the Shadow realm to get his wife back from the Pit of Despair. He went to the shadow realm to do the deal during the festival of 3 suns, while everyone was in prayer.
+guess: I think the Royal Artificer is a secret agent of the Shadow Realm, his mind controlled by dark magic, and that's why he betrayed the kingdom by doing the deal.
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Incorrect. You are missing the who, the how, and the why.",
+        },
+
+        {
+          role: "user",
+          content: `crime: King Polycarp made an under-the-table deal with the Shadow realm to get his wife back from the Pit of Despair. He went to the shadow realm to do the deal during the festival of 3 suns, while everyone was in prayer.
+guess: I solve the mystery
+    `,
+        },
+        {
+          role: "assistant",
+          content: "Incorrect. You are missing the who, the how, and the why.",
+        },
+      ],
+      "The following is a sample set of crimes, guesses, and their corresponding guess results"
+    );
+
+    const actionMessages: ChatCompletionRequestMessage[] = [
+      {
+        role: "system",
+        content: "Now, evaluate the following guess about the crime",
+      },
+      { role: "user", content: `crime: ${crime}\nguess: ${action}` },
+    ];
+
+    const messages = makeAgentMessages(
+      systemMessage,
+      sampleMessages,
+      [],
+      actionMessages
+    );
+
+    const result = await handlers.chat([{content: "The assistant always starts its responses with 'Incorrect.' or 'Correct.'.", "role": "system"}, ...messages]);
+
+    console.log(result.data.choices, result.data.usage);
+    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+
+    if (!resultText) {
+      return null;
+    }
+
+    type OutputStructure = {
+      valid: boolean;
+      reason?: string;
+    };
+
+    const [valid, ...reason] = resultText.trim().split(".");
+
+    const output: OutputStructure = {
+      valid: valid.toLocaleLowerCase() === "correct",
+      reason: reason.join("."),
+    };
+
+    return output;
   };

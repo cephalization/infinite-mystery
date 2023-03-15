@@ -34,7 +34,7 @@ export const makeTimelineMessages = (
   const timelineIntro = timeline.length
     ? [
         {
-          role: "system",
+          role: "user",
           content: introPrompt,
         } as const,
       ]
@@ -65,9 +65,9 @@ export const makeSampleMessages = (
 ): ChatCompletionRequestMessage[] =>
   samples.length
     ? [
-        { role: "system", content: introPrompt },
+        { role: "user", content: introPrompt },
         ...samples,
-        { role: "system", content: "End of samples" },
+        { role: "user", content: "End of samples" },
       ]
     : [];
 

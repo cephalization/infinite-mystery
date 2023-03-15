@@ -90,6 +90,8 @@ model Event {
   content       String
   // Used exclusively by player events
   invalidAction Boolean?
+  guess         Boolean?
+  invalidGuess  Boolean?
   // Relationships
 
   WorldEventSession     WorldEventSession?   @relation(fields: [worldEventSessionId], references: [id])

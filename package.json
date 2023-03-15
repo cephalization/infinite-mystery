@@ -22,6 +22,7 @@
     "db-init": "prisma migrate dev --name init",
     "db:push": "turbo run db:push -- --accept-data-loss --no-daemon",
     "db:seed": "turbo run db:seed --no-daemon",
+    "ai:sandbox": "turbo run ai:sandbox --no-daemon",
     "# docker management commands": "",
     "d-up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d",
     "d-down": "docker-compose down --remove-orphans",
