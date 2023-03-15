@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { forwardRef } from "react";
 import { EllipsisHorizontalIcon } from "~/components/icons/EllipsisHorizontalIcon";
+import { ActiveCommand } from "~/components/molecules/ActiveCommand";
 import type { Command } from "~/components/molecules/CommandMenu";
 import { CommandMenu } from "~/components/molecules/CommandMenu";
 import { ArrowRightCircleIcon } from "../icons/ArrowRightCircleIcon";
@@ -12,6 +13,7 @@ type ActionInputProps = {
   value?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   commands?: Command[];
+  matchedCommand?: Command;
   commandMenuOpen?: boolean;
   setCommandMenuOpen?: (open: boolean) => void;
   onSelectCommand?: (command: Command) => void;
@@ -27,18 +29,26 @@ export const ActionInput = forwardRef<HTMLInputElement, ActionInputProps>(
       commandMenuOpen,
       setCommandMenuOpen,
       commands,
+      matchedCommand,
       onSelectCommand,
     },
     ref
   ) => {
     return (
       <div className="form-control w-full">
-        <div className="flex justify-between">
-          <label className="label" htmlFor="action-input">
-            <span className="label-text">What will you do?</span>
-          </label>
+        <div className="flex justify-between items-end gap-1">
+          {matchedCommand ? (
+            <ActiveCommand
+              name={matchedCommand.name}
+              description={matchedCommand.description}
+            />
+          ) : (
+            <label className="label" htmlFor="action-input">
+              <span className="label-text">What will you do?</span>
+            </label>
+          )}
           <label className="label cursor-pointer flex gap-1">
-            <span className="label-text">Realism Mode</span>
+            <span className="label-text whitespace-nowrap">Realism Mode</span>
             <input
               type="checkbox"
               name="realism-mode"

@@ -46,7 +46,7 @@ export const EventForm = ({
         action() {
           flushSync(() => {
             setInputValue((iv) => {
-              const parts = iv.split("");
+              const parts = iv.split(" ");
               if (parts.length === 1) {
                 return "/solve ";
               }
@@ -79,7 +79,6 @@ export const EventForm = ({
   };
 
   const handleSelectCommand = (command: Command) => {
-    setInputValue("");
     setCommandMenuOpen(false);
     command.action();
   };
@@ -118,11 +117,6 @@ export const EventForm = ({
       return;
     }
 
-    if (matchedCommand) {
-      handleSelectCommand(matchedCommand);
-      return;
-    }
-
     if (input) {
       addOptimisticEvent?.({
         type: "player",
@@ -134,11 +128,12 @@ export const EventForm = ({
       submitFn(e.currentTarget);
 
       if (inputRef.current) {
-        setInputValue("");
         // HACK
         // blur the input so that safari doesn't hijack scroll
         inputRef.current.blur();
       }
+
+      setInputValue("");
     }
   };
 
@@ -156,10 +151,10 @@ export const EventForm = ({
       setCommandMenuOpen(true);
     }
 
-    if (!inputValue) {
+    if (!inputValue || matchedCommand) {
       setCommandMenuOpen(false);
     }
-  }, [inputValue]);
+  }, [inputValue, matchedCommand]);
 
   return (
     <section className={clsx("flex flex-col gap-2", className)}>
@@ -209,6 +204,7 @@ export const EventForm = ({
           setCommandMenuOpen={setCommandMenuOpen}
           commandMenuOpen={commandMenuOpen}
           commands={commands}
+          matchedCommand={matchedCommand}
           onSelectCommand={handleSelectCommand}
         />
       </Form>

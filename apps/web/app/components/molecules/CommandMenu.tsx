@@ -22,7 +22,7 @@ export const findClosestCommand = (
 ) => {
   if (!value || !commands || !commands.length) return;
 
-  const commandValue = value.trim().split("/")[1];
+  const commandValue = value.trim().split("/")[1]?.split?.(" ")?.[0];
 
   return commands.find(
     (command) =>
@@ -42,6 +42,7 @@ export const CommandMenu = ({
   setCommandMenuOpen,
 }: CommandMenuProps) => {
   const closestCommand = findClosestCommand(value, commands);
+  const exactCommand = findClosestCommand(value, commands, true);
 
   useEffect(() => {
     // setup an event listener that will close the menu when the user clicks outside of it
@@ -75,7 +76,7 @@ export const CommandMenu = ({
     };
   }, [open, setCommandMenuOpen]);
 
-  if (!open) return <>{children}</>;
+  if (!open || exactCommand) return <>{children}</>;
 
   return (
     <div className={clsx("dropdown dropdown-top dropdown-open")}>
