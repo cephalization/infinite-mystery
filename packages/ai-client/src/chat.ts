@@ -109,8 +109,8 @@ export const makeAgentMessages = (
   samples: Message[],
   timeline: Message[],
   action: Message[],
-  maxTokens: number = 3500,
-  responseTokens: number = 256
+  maxTokens: number = 8096,
+  responseTokens: number = 2048
 ) => {
   if (maxTokens < responseTokens) {
     throw new Error(
