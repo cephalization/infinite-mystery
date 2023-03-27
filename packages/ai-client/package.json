@@ -18,7 +18,7 @@
   "dependencies": {
     "@dqbd/tiktoken": "^0.4.0",
     "env-config": "*",
-    "openai": "^3.2.0",
+    "openai": "^3.2.1",
     "zod": "^3.20.6"
   },
   "devDependencies": {
