@@ -23,7 +23,7 @@ export const replacer = <T extends Variables>({
   template,
   variables,
   canShorten,
-  maxLength = 7000,
+  maxLength = 3688,
   endText,
 }: {
   template: string;

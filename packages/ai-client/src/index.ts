@@ -33,7 +33,7 @@ const defaultImageQuery: Omit<CreateImageRequest, "prompt"> = {
 };
 
 const defaultChatQuery: Omit<CreateChatCompletionRequest, "messages"> = {
-  model: "gpt-4",
+  model: "gpt-3.5-turbo",
   temperature: 0.5,
 };
 
