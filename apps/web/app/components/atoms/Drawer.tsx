@@ -1,5 +1,6 @@
 import { Link } from "@remix-run/react";
 import clsx from "clsx";
+import { CodeIcon } from "~/components/icons/CodeIcon";
 import type { User } from "~/server/auth.server";
 import { MenuIcon } from "../icons/MenuIcon";
 import { ThemePicker } from "../molecules/ThemePicker";
@@ -69,6 +70,11 @@ export const Drawer = ({ id, children, items = [], user }: DrawerProps) => {
               <Link to="/login">Login</Link>
             </li>
           )}
+          <li>
+            <a href="https://github.com/cephalization/infinite-mystery">
+              Made with <CodeIcon />
+            </a>
+          </li>
         </ul>
       </div>
     </div>
