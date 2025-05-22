@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessage } from "openai";
+import type { ChatCompletionMessageParam } from "openai/resources/chat";
 import { get_encoding } from "@dqbd/tiktoken";
 import { z } from "zod";
 
@@ -26,11 +26,11 @@ export const messageEnc = get_encoding("cl100k_base");
  * @param introPrompt - prompt to introduce openai to the timeline
  * @param newUserAction
  */
-export const makeTimelineMessages = (
-  timeline: Message[],
+export const makeTimelineMessages = <T extends Message>(
+  timeline: T[],
   introPrompt: string,
   newUserAction?: string | null
-): ChatCompletionRequestMessage[] => {
+): (T | { role: "system" | "user"; content: string })[] => {
   const timelineIntro = timeline.length
     ? [
         {
@@ -59,10 +59,10 @@ export const makeTimelineMessages = (
  * @param samples - list of samples
  * @param introPrompt - prompt to introduce openai to the samples
  */
-export const makeSampleMessages = (
-  samples: Message[],
+export const makeSampleMessages = <T extends Message>(
+  samples: T[],
   introPrompt: string
-): ChatCompletionRequestMessage[] =>
+): (T | { role: "system"; content: string })[] =>
   samples.length
     ? [
         { role: "system", content: introPrompt },
@@ -109,8 +109,8 @@ export const makeAgentMessages = (
   samples: Message[],
   timeline: Message[],
   action: Message[],
-  maxTokens: number = 3500,
-  responseTokens: number = 256
+  maxTokens: number = 128_000,
+  responseTokens: number = 4096
 ) => {
   if (maxTokens < responseTokens) {
     throw new Error(

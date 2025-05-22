@@ -1,13 +1,13 @@
 import { Handlers } from ".";
 import { replacer } from "./replacer";
 import { z } from "zod";
-import { ChatCompletionRequestMessage } from "openai";
 import {
   makeAgentMessages,
   makeSampleMessages,
   makeTimelineMessages,
   messageSchema,
 } from "./chat";
+import { ChatCompletionMessageParam } from "openai/resources/chat";
 
 const mysteryDungeonMasterVariablesSchema = z.object({
   worldName: z.string(),
@@ -55,10 +55,10 @@ Never give information to the player that they didn't find directly by exploring
       systemPrompt.length
     );
 
-    const systemMessage: ChatCompletionRequestMessage = {
+    const systemMessage = {
       role: "user",
       content: systemPrompt,
-    };
+    } satisfies ChatCompletionMessageParam;
 
     // an array of chat completion request messages in the format of
     // example timeline entries from the prompt above
@@ -93,7 +93,7 @@ Never give information to the player that they didn't find directly by exploring
         },
       ],
       "The following is a sample timeline, of player actions and dm responses. These samples are abstract, and should not be drawn from directly"
-    );
+    ) satisfies ChatCompletionMessageParam[];
 
     const timelineMessages = makeTimelineMessages(
       timeline,
@@ -102,16 +102,15 @@ Never give information to the player that they didn't find directly by exploring
     );
 
     // if we don't have a timeline, generate a message to brief the player on the game and get them started
-    const briefMessage: ChatCompletionRequestMessage[] =
-      !timelineMessages.length
-        ? [
-            {
-              role: "user",
-              content:
-                "Setup of the game, the world, and the player's role in it. Do not break character. Immerse the player.",
-            },
-          ]
-        : [];
+    const briefMessage = !timelineMessages.length
+      ? ([
+          {
+            role: "user",
+            content:
+              "Setup of the game, the world, and the player's role in it. Do not break character. Immerse the player.",
+          },
+        ] satisfies ChatCompletionMessageParam[])
+      : [];
 
     const messages = makeAgentMessages(
       systemMessage,
@@ -122,9 +121,7 @@ Never give information to the player that they didn't find directly by exploring
 
     const result = await handlers.chat(messages);
 
-    console.log(result.data.choices, result.data.usage);
-
-    const resultText = result.data.choices.at(0)?.message?.content ?? null;
+    const resultText = result.choices.at(0)?.message?.content ?? null;
 
     return resultText;
   };
@@ -170,10 +167,10 @@ Only describe the outcome of the player's immediate action.
       systemPrompt.length
     );
 
-    const systemMessage: ChatCompletionRequestMessage = {
+    const systemMessage = {
       role: "user",
       content: systemPrompt,
-    };
+    } satisfies ChatCompletionMessageParam;
 
     // an array of chat completion request messages in the format of
     // example timeline entries from the prompt above
@@ -210,9 +207,7 @@ Only describe the outcome of the player's immediate action.
 
     const result = await handlers.chat(messages, { temperature: 0.8 });
 
-    console.log(result.data.choices, result.data.usage);
-
-    const resultText = result.data.choices.at(0)?.message?.content ?? null;
+    const resultText = result.choices.at(0)?.message?.content ?? null;
 
     return resultText;
   };
@@ -258,10 +253,10 @@ This is a description of {worldName}: {worldDescription}
 
     console.log("Evaluator prompt Length:", systemPrompt.length);
 
-    const systemMessage: ChatCompletionRequestMessage = {
+    const systemMessage = {
       role: "system",
       content: systemPrompt,
-    };
+    } satisfies ChatCompletionMessageParam;
 
     // an array of chat completion request messages in the format of
     // example action and evaluations from the prompt above
@@ -300,10 +295,10 @@ This is a description of {worldName}: {worldDescription}
       "The following is the timeline of some events that have occurred in the game"
     );
 
-    const actionMessages: ChatCompletionRequestMessage[] = [
+    const actionMessages = [
       { role: "system", content: "Now, evaluate the following action" },
       { role: "user", content: action },
-    ];
+    ] satisfies ChatCompletionMessageParam[];
 
     const messages = makeAgentMessages(
       systemMessage,
@@ -314,8 +309,7 @@ This is a description of {worldName}: {worldDescription}
 
     const result = await handlers.chat(messages);
 
-    console.log(result.data.choices, result.data.usage);
-    const resultText = result.data.choices.at(0)?.message?.content ?? "";
+    const resultText = result.choices.at(0)?.message?.content ?? "";
 
     if (!resultText) {
       return null;
@@ -376,7 +370,7 @@ This is your description of the image:
     );
 
     const promptResult = await handlers.completion(promptGeneratorPrompt);
-    const prompt = promptResult.data.choices.at(0)?.text ?? "";
+    const prompt = promptResult.choices.at(0)?.message?.content ?? "";
 
     console.log("World Image Generator Prompt:", prompt);
 
@@ -384,7 +378,7 @@ This is your description of the image:
       response_format: "b64_json",
     });
 
-    const b64Image = result.data.data.at(0)?.b64_json;
+    const b64Image = result.data?.at(0)?.b64_json;
 
     if (!b64Image) {
       return null;
@@ -444,7 +438,7 @@ This is your description of the image to go with the mystery:`,
     );
 
     const promptResult = await handlers.completion(promptGeneratorPrompt);
-    const prompt = promptResult.data.choices.at(0)?.text ?? "";
+    const prompt = promptResult.choices.at(0)?.message?.content ?? "";
 
     console.log("Mystery Image Generator Prompt:", prompt);
 
@@ -452,7 +446,7 @@ This is your description of the image to go with the mystery:`,
       response_format: "b64_json",
     });
 
-    const b64Image = result.data.data.at(0)?.b64_json;
+    const b64Image = result.data?.at(0)?.b64_json;
 
     if (!b64Image) {
       return null;

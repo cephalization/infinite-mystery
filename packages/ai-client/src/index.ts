@@ -1,12 +1,5 @@
 import { serverConfig } from "env-config";
-import {
-  ChatCompletionRequestMessage,
-  Configuration,
-  CreateChatCompletionRequest,
-  CreateCompletionRequest,
-  CreateImageRequest,
-  OpenAIApi,
-} from "openai";
+import { OpenAI } from "openai";
 
 export { replacer } from "./replacer";
 
@@ -17,50 +10,63 @@ import {
   createWorldImageGenerator,
   createmysteryImageGenerator,
 } from "./agents";
+import {
+  ChatCompletionCreateParams,
+  ChatCompletionMessageParam,
+} from "openai/resources/chat";
+import { ImageGenerateParams } from "openai/resources/images";
 
-const defaultCompletionQuery: CreateCompletionRequest = {
-  model: "text-davinci-003",
-  temperature: 0.5,
-  max_tokens: 512,
-  frequency_penalty: 1,
-  presence_penalty: 0.5,
+const defaultCompletionQuery: Omit<ChatCompletionCreateParams, "messages"> = {
+  model: "gpt-4o",
 };
 
-const defaultImageQuery: Omit<CreateImageRequest, "prompt"> = {
+const defaultImageQuery: Omit<ImageGenerateParams, "prompt"> = {
   n: 1,
   response_format: "url",
   size: "512x512",
 };
 
-const defaultChatQuery: Omit<CreateChatCompletionRequest, "messages"> = {
-  model: "gpt-3.5-turbo",
-  temperature: 0.5,
-};
+const defaultChatQuery = {
+  model: "gpt-4o",
+  stream: false,
+} satisfies Omit<ChatCompletionCreateParams, "messages">;
 
-const createHandlers = (client: OpenAIApi) => ({
+const createHandlers = (client: OpenAI) => ({
   completion: (
     prompt: string,
-    options: Partial<CreateCompletionRequest> = {}
+    options: Partial<ChatCompletionCreateParams> = {}
   ) =>
-    client.createCompletion({
-      prompt: prompt.trim(),
+    client.chat.completions.create({
+      messages: [{ role: "user", content: prompt.trim() }],
       ...defaultCompletionQuery,
       ...options,
+      stream: false,
     }),
-  image: (prompt: string, options: Partial<CreateImageRequest> = {}) =>
-    client.createImage({
+  image: (prompt: string, options: Partial<ImageGenerateParams> = {}) =>
+    client.images.generate({
       prompt,
       ...defaultImageQuery,
       ...options,
     }),
-  chat: (
-    messages: ChatCompletionRequestMessage[],
-    options: Partial<CreateChatCompletionRequest> = {}
+  chat: <C extends Partial<ChatCompletionCreateParams>>(
+    messages: ChatCompletionMessageParam[],
+    options: C = {} as C
   ) =>
-    client.createChatCompletion({
+    client.chat.completions.create({
       messages,
       ...defaultChatQuery,
       ...options,
+      stream: false,
+    }),
+  chatStream: <C extends Partial<ChatCompletionCreateParams>>(
+    messages: ChatCompletionMessageParam[],
+    options: C = {} as C
+  ) =>
+    client.chat.completions.create({
+      messages,
+      ...defaultChatQuery,
+      ...options,
+      stream: true,
     }),
 });
 
@@ -75,11 +81,9 @@ const createAgents = (handlers: Handlers) => ({
 });
 
 export const createAiClient = () => {
-  const configuration = new Configuration({
+  const openai = new OpenAI({
     apiKey: serverConfig.OPENAI_API_KEY,
   });
-
-  const openai = new OpenAIApi(configuration);
 
   const handlers = createHandlers(openai);
   const agents = createAgents(handlers);
